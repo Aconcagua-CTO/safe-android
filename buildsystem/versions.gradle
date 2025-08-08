@@ -47,13 +47,12 @@ ext {
             svalinn                         : 'v0.16.1',
             timber                          : '4.7.1',
             zxing                           : '3.3.1',
-            play_core                       : '1.9.1',
-            play_core_ktx                   : '1.8.1',
+            play_core                       : '1.10.3',
             work                            : '2.7.1',
             unstoppabledomains              : '1.13.2',
             intercom                        : '14.2.0',
             lottie                          : '5.2.0',
-            keystone                        : '0.6.5',
+            keystone                        : '0.7.10',
 
             // Test dependencies
             espresso                        : '3.5.1',

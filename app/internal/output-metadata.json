@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "io.gnosis.safe.internal",
+  "variantName": "internal",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 908,
+      "versionName": "3.11.1-internal",
+      "outputFile": "safe-908-internal.apk"
+    }
+  ],
+  "elementType": "File"
+}

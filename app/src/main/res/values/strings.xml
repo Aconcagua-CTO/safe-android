@@ -52,7 +52,7 @@
     <string name="agree">Agree</string>
     <string name="add_safe">Add Safe Account</string>
     <string name="switch_safes">Switch Safe Accounts</string>
-    <string name="assets">Assets</string>
+    <string name="assets">Activos</string>
     <string name="transactions">Transactions</string>
 
     <string name="transactions_empty">Transactions will appear here</string>

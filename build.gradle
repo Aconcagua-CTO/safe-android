@@ -8,7 +8,7 @@ buildscript {
 
     repositories {
         google()
-        jcenter()
+        mavenCentral()
         maven { url 'https://www.jitpack.io' }
     }
     dependencies {
@@ -19,15 +19,6 @@ buildscript {
         classpath "com.google.gms:google-services:$versions.google_services"
         classpath "com.google.firebase:firebase-crashlytics-gradle:$versions.firebase_crashlytics_gradle"
         classpath "com.google.firebase:firebase-appdistribution-gradle:$versions.firebase_app_distribution_gradle"
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        jcenter()
-        mavenCentral()
-        maven { url 'https://www.jitpack.io' }
     }
 }
 
