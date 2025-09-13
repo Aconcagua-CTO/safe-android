@@ -83,12 +83,29 @@ class SettingsHandler @Inject constructor(
     }
 
     var screenshotsAllowed: Boolean
-        get() = preferencesManager.prefs.getBoolean(KEY_ALLOW_SCREENSHOTS, false)
+        get() = preferencesManager.prefs.getBoolean(KEY_ALLOW_SCREENSHOTS, getDefaultScreenshotsAllowed())
         set(value) {
             preferencesManager.prefs.edit {
                 putBoolean(KEY_ALLOW_SCREENSHOTS, value)
             }
         }
+    
+    /**
+     * Get the default value for screenshots allowed based on build type.
+     * 
+     * DEBUG builds (debug, unsafe, profile, internal): Allow screenshots by default
+     * - Enables screen mirroring for debugging and development
+     * - Facilitates UI testing and demonstration
+     * 
+     * RELEASE builds: Disable screenshots by default  
+     * - Prevents screen recording and mirroring for security
+     * - Protects sensitive financial information
+     * 
+     * Note: Users can still override this setting in Advanced Settings regardless of build type.
+     */
+    private fun getDefaultScreenshotsAllowed(): Boolean {
+        return BuildConfig.DEBUG
+    }
 
     fun allowScreenShots(window: Window, allow: Boolean) {
         if (allow) {
@@ -96,6 +113,10 @@ class SettingsHandler @Inject constructor(
         } else {
             window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
         }
+        
+        // Log the current setting for debugging purposes
+        android.util.Log.d("SettingsHandler", "Screenshots ${if (allow) "ENABLED" else "DISABLED"} " +
+                "(BuildType: ${BuildConfig.BUILD_TYPE}, DEBUG: ${BuildConfig.DEBUG})")
     }
 
     var trackingAllowed: Boolean

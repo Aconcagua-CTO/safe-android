@@ -264,6 +264,13 @@ class TransactionDetailsFragment : BaseViewBindingFragment<FragmentTransactionDe
         }
 
         when (val txInfo = txDetails.txInfo) {
+            is TransactionInfoViewData.Creation -> {
+                // Handle creation transaction - use existing UI pattern
+                // For now, treat similar to custom transaction
+            }
+            is TransactionInfoViewData.Unknown -> {
+                // Handle unknown transaction type - minimal handling
+            }
             is TransactionInfoViewData.Transfer -> {
                 val viewStub = binding.stubTransfer
                 if (viewStub.parent != null) {

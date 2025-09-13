@@ -100,6 +100,12 @@ class TxReviewFragment : BaseViewBindingFragment<FragmentTxReviewBinding>() {
             )
 
             when (val txInfo = txDetails!!.txInfo) {
+                is TransactionInfoViewData.Creation -> {
+                    // Handle creation transaction UI - minimal handling
+                }
+                is TransactionInfoViewData.Unknown -> {
+                    // Handle unknown transaction UI - minimal handling
+                }
                 is TransactionInfoViewData.Transfer -> setupTransferUI(txInfo)
                 is TransactionInfoViewData.SettingsChange -> setupSettingsChangeUI(txInfo)
                 is TransactionInfoViewData.Custom -> setupCustomUI(txInfo)

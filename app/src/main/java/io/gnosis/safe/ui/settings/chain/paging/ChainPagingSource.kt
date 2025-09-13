@@ -7,29 +7,33 @@ import timber.log.Timber
 
 class ChainPagingSource(
     private val chainInfoRepository: ChainInfoRepository
-) : PagingSource<String, Chain>() {
-
-    override suspend fun load(params: LoadParams<String>): LoadResult<String, Chain> {
-
-        val pageLink = params.key
-
-        kotlin.runCatching {
-            pageLink?.let { chainInfoRepository.loadChainInfoPage(pageLink) } ?: chainInfoRepository.getChainInfo()
-
-        }.onSuccess { page ->
-            return LoadResult.Page(
-                data = page.results.map {
-                    it.toChain()
-                },
-                prevKey = page.previous,
-                nextKey = page.next
-            )
-        }
-            .onFailure {
-                Timber.e(it)
-                return LoadResult.Error(it)
+) : PagingSource<Int, Chain>() {
+    
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Chain> {
+        return try {
+            val page = params.key ?: 0
+            val pageSize = params.loadSize
+            val allChains = chainInfoRepository.getSupportedChains()
+            
+            val startIndex = page * pageSize
+            val endIndex = minOf(startIndex + pageSize, allChains.size)
+            
+            if (startIndex >= allChains.size) {
+                LoadResult.Page(
+                    data = emptyList(),
+                    prevKey = if (page > 0) page - 1 else null,
+                    nextKey = null
+                )
+            } else {
+                LoadResult.Page(
+                    data = allChains.subList(startIndex, endIndex),
+                    prevKey = if (page > 0) page - 1 else null,
+                    nextKey = if (endIndex < allChains.size) page + 1 else null
+                )
             }
-
-        throw IllegalStateException(javaClass.name)
+        } catch (e: Exception) {
+            Timber.e(e)
+            LoadResult.Error(e)
+        }
     }
 }

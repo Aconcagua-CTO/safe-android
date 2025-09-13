@@ -287,6 +287,10 @@
         <action
             android:id="@+id/action_ownerAddOptionsFragment_to_ownerInfoKeystoneFragment"
             app:destination="@id/ownerInfoKeystoneFragment" />
+
+        <action
+            android:id="@+id/action_ownerAddOptionsFragment_to_ownerInfoTangemFragment"
+            app:destination="@id/ownerInfoTangemFragment" />
     </fragment>
 
     <fragment
@@ -325,6 +329,17 @@
     </fragment>
 
     <fragment
+        android:id="@+id/ownerInfoTangemFragment"
+        android:name="io.gnosis.safe.ui.settings.owner.intro.OwnerInfoTangemFragment"
+        android:label="OwnerInfoTangemFragment"
+        tools:layout="@layout/fragment_owner_info_tangem">
+
+        <action
+            android:id="@+id/action_ownerInfoTangemFragment_to_tangemOwnerSelectionFragment"
+            app:destination="@id/tangemOwnerSelectionFragment" />
+    </fragment>
+
+    <fragment
         android:id="@+id/keystoneOwnerSelectionFragment"
         android:name="io.gnosis.safe.ui.settings.owner.keystone.KeystoneOwnerSelectionFragment"
         android:label="KeystoneOwnerSelectionFragment"
@@ -344,6 +359,22 @@
             android:id="@+id/action_keystoneOwnerSelectionFragment_to_ownerEnterNameFragment"
             app:destination="@id/ownerEnterNameFragment" />
 
+    </fragment>
+
+    <fragment
+        android:id="@+id/tangemOwnerSelectionFragment"
+        android:name="io.gnosis.safe.ui.settings.owner.tangem.TangemOwnerSelectionFragment"
+        android:label="TangemOwnerSelectionFragment"
+        tools:layout="@layout/fragment_tangem_owner_selection">
+
+        <argument
+            android:name="cardId"
+            app:argType="string"
+            app:nullable="true" />
+
+        <action
+            android:id="@+id/action_tangemOwnerSelectionFragment_to_ownerEnterNameFragment"
+            app:destination="@id/ownerEnterNameFragment" />
     </fragment>
 
     <fragment
@@ -871,6 +902,11 @@
             app:destination="@id/keystoneRequestSignatureFragment"
             app:popUpTo="@id/signingOwnerSelectionFragment" />
 
+        <action
+            android:id="@+id/action_signingOwnerSelectionFragment_to_tangemSignFragment"
+            app:destination="@id/tangemSignFragment"
+            app:popUpTo="@id/signingOwnerSelectionFragment" />
+
         <argument
             android:name="missingSigners"
             app:argType="string[]"
@@ -922,6 +958,32 @@
             android:name="isLegacy"
             android:defaultValue="false"
             app:argType="boolean" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/tangemSignFragment"
+        android:name="io.gnosis.safe.ui.settings.owner.tangem.TangemSignFragment"
+        android:label="TangemSignFragment"
+        tools:layout="@layout/fragment_tangem_sign">
+
+        <argument
+            android:name="owner"
+            app:argType="string" />
+
+        <argument
+            android:name="safeTxHash"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+
+        <argument
+            android:name="signingMode"
+            app:argType="io.gnosis.safe.ui.transactions.details.SigningMode" />
+
+        <argument
+            android:name="chain"
+            app:argType="io.gnosis.data.models.Chain" />
 
     </fragment>
 
@@ -1307,6 +1369,11 @@
             app:popUpTo="@id/txReviewFragment" />
 
         <action
+            android:id="@+id/action_txReviewFragment_to_tangemSignDialog"
+            app:destination="@id/tangemSignDialog"
+            app:popUpTo="@id/txReviewFragment" />
+
+        <action
             android:id="@+id/action_txReviewFragment_to_txSuccessFragment"
             app:destination="@id/txSuccessFragment" />
 
@@ -1440,6 +1507,27 @@
         android:name="io.gnosis.safe.ui.settings.owner.ledger.LedgerSignDialog"
         android:label="LedgerSignDialog"
         tools:layout="@layout/dialog_ledger_sign">
+
+        <argument
+            android:name="owner"
+            app:argType="string" />
+
+        <argument
+            android:name="safeTxHash"
+            app:argType="string" />
+
+        <argument
+            android:name="confirmation"
+            android:defaultValue="true"
+            app:argType="boolean" />
+
+    </dialog>
+
+    <dialog
+        android:id="@+id/tangemSignDialog"
+        android:name="io.gnosis.safe.ui.settings.owner.tangem.TangemSignDialog"
+        android:label="TangemSignDialog"
+        tools:layout="@layout/dialog_tangem_sign">
 
         <argument
             android:name="owner"

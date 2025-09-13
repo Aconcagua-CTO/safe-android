@@ -68,31 +68,75 @@ class OwnerListViewModel
                     credentialsRepository.owners()
                         .map { OwnerViewData(it.address, it.name, it.type) }
                         .sortedBy { it.name }
+                // FIXED: Match web frontend behavior and TxReviewViewModel logic
+                // Any local key can execute (not just Safe signers)
+                // CRITICAL FIX: Exclude Tangem from execution - only local keys can execute
                 val acceptedOwners = owners.filter { localOwner ->
-                    safe.signingOwners.any {
-                        //TODO: Modify this check when we have tx execution on Ledger Nano X
-                        localOwner.address == it && localOwner.type != Owner.Type.LEDGER_NANO_X
-                    }
+                    //TODO: Modify this check when we have tx execution on Ledger Nano X
+                    localOwner.type != Owner.Type.LEDGER_NANO_X && localOwner.type != Owner.Type.TANGEM
                 }
-                val balances = rpcClient.getBalances(acceptedOwners.map { it.address })
-                updateState {
-                    OwnerListState(
-                        viewAction =
-                        LocalOwners(
-                            acceptedOwners.mapIndexed { index, ownerViewData ->
-                                ownerViewData.copy(
-                                    balance = "${
-                                        balanceFormatter.shortAmount(
-                                            balances[index]!!.value.convertAmount(
-                                                safe.chain.currency.decimals
+                
+                android.util.Log.i("OwnerListViewModel", "═══ EXECUTION KEY SELECTION SCREEN ═══")
+                android.util.Log.i("OwnerListViewModel", "Total local owners: ${owners.size}")
+                android.util.Log.i("OwnerListViewModel", "Accepted for execution: ${acceptedOwners.size}")
+                owners.forEach { owner ->
+                    val isAccepted = acceptedOwners.contains(owner)
+                    android.util.Log.i("OwnerListViewModel", "Owner: ${owner.address.asEthereumAddressString()} (${owner.type}) - Accepted: $isAccepted")
+                }
+                android.util.Log.i("OwnerListViewModel", "Safe signers:")
+                safe.signingOwners.forEach { signer ->
+                    android.util.Log.i("OwnerListViewModel", "Safe signer: ${signer.asEthereumAddressString()}")
+                }
+                kotlin.runCatching {
+                    rpcClient.getBalances(acceptedOwners.map { it.address })
+                }.onSuccess { balances ->
+                    android.util.Log.i("OwnerListViewModel", "✅ BALANCE LOADING SUCCESS")
+                    updateState {
+                        OwnerListState(
+                            viewAction =
+                            LocalOwners(
+                                acceptedOwners.mapIndexed { index, ownerViewData ->
+                                    ownerViewData.copy(
+                                        balance = "${
+                                            balanceFormatter.shortAmount(
+                                                balances[index]!!.value.convertAmount(
+                                                    safe.chain.currency.decimals
+                                                )
                                             )
-                                        )
-                                    } ${safe.chain.currency.symbol}",
-                                    zeroBalance = balances[index]!!.value == BigInteger.ZERO
-                                )
-                            }
+                                        } ${safe.chain.currency.symbol}",
+                                        zeroBalance = balances[index]!!.value == BigInteger.ZERO
+                                    )
+                                }
+                            )
                         )
-                    )
+                    }
+                }.onFailure { error ->
+                    android.util.Log.e("OwnerListViewModel", "═══ BALANCE LOADING FAILED ═══")
+                    android.util.Log.e("OwnerListViewModel", "Error: ${error.message}")
+                    android.util.Log.e("OwnerListViewModel", "Accepted owners count: ${acceptedOwners.size}")
+                    
+                    if (acceptedOwners.isEmpty()) {
+                        android.util.Log.e("OwnerListViewModel", "❌ NO ACCEPTED OWNERS")
+                        updateState {
+                            OwnerListState(viewAction = BaseStateViewModel.ViewAction.ShowError(Exception("No execution keys available")))
+                        }
+                    } else {
+                        android.util.Log.w("OwnerListViewModel", "⚠️ Using owners without balance info")
+                        // Fallback: show owners without balance info
+                        updateState {
+                            OwnerListState(
+                                viewAction =
+                                LocalOwners(
+                                    acceptedOwners.map { ownerViewData ->
+                                        ownerViewData.copy(
+                                            balance = "Unknown",
+                                            zeroBalance = false
+                                        )
+                                    }
+                                )
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -128,6 +172,29 @@ class OwnerListViewModel
                         OwnerListState(
                             ViewAction.NavigateTo(
                                 SigningOwnerSelectionFragmentDirections.actionSigningOwnerSelectionFragmentToKeystoneRequestSignatureFragment(
+                                    owner = owner.asEthereumAddressString(),
+                                    signingMode = signingMode,
+                                    chain = chain,
+                                    safeTxHash = safeTxHash
+                                )
+                            )
+                        )
+                    }
+                    updateState { OwnerListState(ViewAction.None) }
+                }
+
+                Owner.Type.TANGEM -> {
+                    // CRITICAL FIX: Tangem can only be used for CONFIRMATION, not EXECUTION
+                    if (signingMode == SigningMode.EXECUTION) {
+                        // Tangem cannot execute transactions - only local keys can
+                        // This should never happen if filtering is correct, but add safety check
+                        throw IllegalStateException("Tangem cannot be used for execution - only for confirmation")
+                    }
+                    
+                    updateState {
+                        OwnerListState(
+                            ViewAction.NavigateTo(
+                                SigningOwnerSelectionFragmentDirections.actionSigningOwnerSelectionFragmentToTangemSignFragment(
                                     owner = owner.asEthereumAddressString(),
                                     signingMode = signingMode,
                                     chain = chain,

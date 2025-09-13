@@ -161,11 +161,15 @@ class SendAssetReviewViewModel
                 safeTxGas = safeTxGas ?: BigInteger.ZERO
             )
 
+            android.util.Log.d("SendAssetReviewViewModel", "Transaction preparation - selectedAsset: ${selectedAsset.address}, toAddress: $toAddress, transferAmount: $transferAmount")
+            
             val txDetails =
                 if (selectedAsset.address.asEthereumAddress() == Solidity.Address(BigInteger.ZERO)) {
+                    // ETH transfer
                     transferAddress = toAddress
                     transferValue = transferAmount
                     data = "0x"
+                    android.util.Log.d("SendAssetReviewViewModel", "ETH Transfer - transferAddress: $transferAddress, transferValue: $transferValue")
                     TransactionDetails(
                         txInfo = TransactionInfo.Custom(
                             to = AddressInfo(toAddress),
@@ -182,8 +186,11 @@ class SendAssetReviewViewModel
                         safeAppInfo = null
                     )
                 } else {
+                    // ERC20 transfer
                     transferAddress = selectedAsset.address.asEthereumAddress()!!
+                    transferValue = BigInteger.ZERO
                     data = ERC20Contract.Transfer.encode(toAddress, Solidity.UInt256(transferAmount))
+                    android.util.Log.d("SendAssetReviewViewModel", "ERC20 Transfer - transferAddress (token contract): $transferAddress, toAddress (recipient): $toAddress, transferValue: $transferValue")
                     TransactionDetails(
                         txInfo = TransactionInfo.Transfer(
                             AddressInfo(fromAddress),
@@ -239,7 +246,33 @@ class SendAssetReviewViewModel
 
     fun initiateTransfer(owner: Solidity.Address, signedSafeTxHash: String? = null) {
         safeLaunch {
+            android.util.Log.d("SendAssetReviewViewModel", "initiateTransfer called - owner: $owner, signedSafeTxHash: $signedSafeTxHash")
+            
             val selectedOwner = credentialsRepository.owner(owner) ?: throw MissingOwnerCredential
+            android.util.Log.d("SendAssetReviewViewModel", "Selected owner type: ${selectedOwner.type}")
+            
+            val finalSignature = if (signedSafeTxHash != null) {
+                android.util.Log.d("SendAssetReviewViewModel", "✅ Using provided signature from Tangem signing flow")
+                signedSafeTxHash
+            } else {
+                android.util.Log.w("SendAssetReviewViewModel", "⚠️ No signature provided, falling back to signWithOwner")
+                credentialsRepository.signWithOwner(selectedOwner, safeTxHash.hexToByteArray()).toSignatureString()
+            }
+            
+            android.util.Log.d("SendAssetReviewViewModel", "Final signature: $finalSignature")
+            
+            // Log all transaction parameters for debugging
+            android.util.Log.d("SendAssetReviewViewModel", "Transaction Parameters:")
+            android.util.Log.d("SendAssetReviewViewModel", "  chainId: ${activeSafe.chainId}")
+            android.util.Log.d("SendAssetReviewViewModel", "  safeAddress: ${activeSafe.address}")
+            android.util.Log.d("SendAssetReviewViewModel", "  toAddress (transferAddress): $transferAddress")
+            android.util.Log.d("SendAssetReviewViewModel", "  value (transferValue): $transferValue")
+            android.util.Log.d("SendAssetReviewViewModel", "  data: $data")
+            android.util.Log.d("SendAssetReviewViewModel", "  nonce: ${txExecutionInfo.nonce}")
+            android.util.Log.d("SendAssetReviewViewModel", "  safeTxGas: ${txExecutionInfo.safeTxGas}")
+            android.util.Log.d("SendAssetReviewViewModel", "  safeTxHash: $safeTxHash")
+            android.util.Log.d("SendAssetReviewViewModel", "  sender: ${selectedOwner.address}")
+            
             kotlin.runCatching {
                 transactionRepository.proposeTransaction(
                     chainId = activeSafe.chainId,
@@ -248,15 +281,17 @@ class SendAssetReviewViewModel
                     value = transferValue,
                     data = data,
                     nonce = txExecutionInfo.nonce,
-                    signature = signedSafeTxHash ?: credentialsRepository.signWithOwner(
-                        selectedOwner,
-                        safeTxHash.hexToByteArray()
-                    ).toSignatureString(),
+                    signature = finalSignature,
                     safeTxGas = txExecutionInfo.safeTxGas.toLong(),
                     safeTxHash = safeTxHash,
-                    sender = selectedOwner.address
+                    sender = selectedOwner.address.asEthereumAddressString().lowercase().asEthereumAddress()!!
                 )
             }.onSuccess {
+                android.util.Log.i("SendAssetReviewViewModel", "✅ TRANSACTION SUBMISSION SUCCESS!")
+                android.util.Log.i("SendAssetReviewViewModel", "✅ Safe Transaction Service accepted the signature")
+                android.util.Log.i("SendAssetReviewViewModel", "✅ HTTP 201 - Transaction proposed successfully")
+                android.util.Log.i("SendAssetReviewViewModel", "✅ FLOW COMPLETE: Ethereum derivation + SignRaw = SUCCESS")
+                
                 updateState {
                     SendAssetReviewState(
                         ViewAction.NavigateTo(
@@ -269,8 +304,12 @@ class SendAssetReviewViewModel
                         )
                     )
                 }
-            }.onFailure {
-                throw TxTransferFailed(it.cause ?: it)
+            }.onFailure { error ->
+                android.util.Log.e("SendAssetReviewViewModel", "❌ TRANSACTION SUBMISSION FAILED!")
+                android.util.Log.e("SendAssetReviewViewModel", "❌ Error: ${error.message}")
+                android.util.Log.e("SendAssetReviewViewModel", "❌ This indicates signature verification failed")
+                android.util.Log.e("SendAssetReviewViewModel", "❌ Need to analyze signature generation process")
+                throw TxTransferFailed(error.cause ?: error)
             }
         }
     }

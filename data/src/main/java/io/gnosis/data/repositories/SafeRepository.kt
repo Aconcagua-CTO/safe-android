@@ -2,7 +2,7 @@ package io.gnosis.data.repositories
 
 import android.content.SharedPreferences
 import io.gnosis.contracts.BuildConfig
-import io.gnosis.data.backend.GatewayApi
+import io.gnosis.data.backend.DynamicGatewayApi
 import io.gnosis.data.db.daos.SafeDao
 import io.gnosis.data.models.Chain
 import io.gnosis.data.models.Safe
@@ -23,7 +23,7 @@ import java.math.BigInteger
 class SafeRepository(
     private val safeDao: SafeDao,
     private val preferencesManager: PreferencesManager,
-    private val gatewayApi: GatewayApi
+    private val gatewayApi: DynamicGatewayApi
 ) {
 
     private val keyFlow = callbackFlow {

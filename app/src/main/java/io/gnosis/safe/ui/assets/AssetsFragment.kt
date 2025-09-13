@@ -92,6 +92,11 @@ class AssetsFragment : SafeOverviewBaseFragment<FragmentAssetsBinding>() {
                     binding.balancesTabBar.visible(!noActiveSafe, View.INVISIBLE)
                     handleActiveSafe(state.safe)
                 }
+                is SafeBalancesState.SafeLoading -> {
+                    // Handle loading state - show loading indicators if needed
+                    binding.totalBalance.visible(false, View.GONE)
+                    binding.balancesTabBar.visible(false, View.INVISIBLE)
+                }
                 is SafeBalancesState.TotalBalance -> {
                     binding.totalBalanceValue.text = state.totalBalance
                 }

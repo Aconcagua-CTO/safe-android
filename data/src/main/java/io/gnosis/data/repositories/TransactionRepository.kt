@@ -1,6 +1,6 @@
 package io.gnosis.data.repositories
 
-import io.gnosis.data.backend.GatewayApi
+import io.gnosis.data.backend.DynamicGatewayApi
 import io.gnosis.data.models.Page
 import io.gnosis.data.models.Safe
 import io.gnosis.data.models.transaction.*
@@ -14,7 +14,7 @@ import pm.gnosis.utils.removeHexPrefix
 import java.math.BigInteger
 
 class TransactionRepository(
-    private val gatewayApi: GatewayApi
+    private val gatewayApi: DynamicGatewayApi
 ) {
 
     suspend fun getQueuedTransactions(safe: Safe): Page<TxListEntry> =

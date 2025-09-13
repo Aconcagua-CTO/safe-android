@@ -124,6 +124,7 @@ class SendAssetFragment : BaseViewBindingFragment<FragmentSendAssetBinding>() {
                 assetSendAmount.setAmount(selectedAsset.balance)
             }
             val onReviewClickListner = View.OnClickListener {
+                android.util.Log.d("SendAssetFragment", "Review button clicked - recipientInput: $recipientInput, amountInput: $amountInput")
                 viewModel.onReviewButtonClicked(
                     chain,
                     selectedAsset,
@@ -215,7 +216,9 @@ class SendAssetFragment : BaseViewBindingFragment<FragmentSendAssetBinding>() {
     }
 
     private fun updateAddress(address: Solidity.Address) {
+        android.util.Log.d("SendAssetFragment", "updateAddress called with: ${address.asEthereumAddressString()}")
         recipientInput = address.asEthereumAddressString()
+        android.util.Log.d("SendAssetFragment", "recipientInput set to: $recipientInput")
         with(binding) {
             validateInputs()
             recipientAddressInputLayout.setNewAddress(

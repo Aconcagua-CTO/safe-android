@@ -40,7 +40,8 @@ class CredentialsRepository(
             ownerType == Owner.Type.IMPORTED ||
                     ownerType == Owner.Type.GENERATED ||
                     ownerType == Owner.Type.LEDGER_NANO_X ||
-                    ownerType == Owner.Type.KEYSTONE -> {
+                    ownerType == Owner.Type.KEYSTONE ||
+                    ownerType == Owner.Type.TANGEM -> {
                 ownerDao.ownerCountForType(OwnerTypeConverter().toValue(ownerType))
             }
             else -> {
@@ -121,6 +122,22 @@ class CredentialsRepository(
         ownerDao.save(owner)
     }
 
+    suspend fun saveTangemOwner(
+        address: Solidity.Address,
+        name: String? = null,
+        cardId: String,
+        derivationPath: String
+    ) {
+        val owner = Owner(
+            address = address,
+            name = name,
+            type = Owner.Type.TANGEM,
+            keyDerivationPath = derivationPath,
+            sourceFingerprint = cardId // Use cardId as fingerprint
+        )
+        ownerDao.save(owner)
+    }
+
     suspend fun saveOwner(owner: Owner) {
         ownerDao.save(owner)
     }
@@ -164,6 +181,15 @@ class CredentialsRepository(
     }
 
     fun signWithOwner(owner: Owner, data: ByteArray): ECDSASignature {
+        // Check if this is a Tangem owner - they don't have local private keys
+        // Tangem signing should be handled through the UI flow, not this method
+        if (owner.type == Owner.Type.TANGEM) {
+            android.util.Log.e("CredentialsRepository", "❌ CRITICAL: signWithOwner called for Tangem owner! This should not happen - signature should have been provided by TangemSignFragment")
+            android.util.Log.e("CredentialsRepository", "Owner: ${owner.address}, Type: ${owner.type}")
+            android.util.Log.e("CredentialsRepository", "This indicates that the signedSafeTxHash parameter was null or invalid in the transaction flow")
+            throw UnsupportedOperationException("Tangem signing must be done through the Tangem signing flow (TangemSignFragment). This method is only for owners with local private keys.")
+        }
+        
         val converter = EncryptedByteArray.Converter()
         val cryptoData =
             EncryptionManager.CryptoData.fromString(converter.toStorage(owner.privateKey!!))

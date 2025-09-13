@@ -95,6 +95,12 @@ class OwnerEnterNameFragment : BaseViewBindingFragment<FragmentOwnerNameEnterBin
                         viewModel.importKeystone(ownerAddress, ownerNameEntry.text.toString(), derivationPathWithIndex!!, sourceFingerprint!!)
                     }
                 }
+                Owner.Type.TANGEM -> {
+                    nextButton.text = getString(R.string.signing_owner_import)
+                    nextButton.setOnClickListener {
+                        viewModel.importTangem(ownerAddress, ownerNameEntry.text.toString(), derivationPathWithIndex!!, sourceFingerprint ?: "")
+                    }
+                }
             }
             nextButton.isEnabled = !ownerNameEntry.text.isNullOrBlank()
             ownerNameEntry.doOnTextChanged { text, _, _, _ -> binding.nextButton.isEnabled = !text.isNullOrBlank() }

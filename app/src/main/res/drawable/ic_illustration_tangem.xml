@@ -1,0 +1,83 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+  <!-- Background circle -->
+  <path
+      android:pathData="M50,0C77.61,0 100,22.39 100,50C100,77.61 77.61,100 50,100C22.39,100 0,77.61 0,50C0,22.39 22.39,0 50,0Z"
+      android:fillColor="#EEEFF0"
+      android:fillType="evenOdd"/>
+  
+  <!-- Tangem card body -->
+  <path
+      android:pathData="M25,20L75,20C78.31,20 81,22.69 81,26L81,74C81,77.31 78.31,80 75,80L25,80C21.69,80 19,77.31 19,74L19,26C19,22.69 21.69,20 25,20Z"
+      android:fillColor="#FFFFFF"
+      android:strokeColor="#E2E3E3"
+      android:strokeWidth="1"/>
+  
+  <!-- Card chip -->
+  <path
+      android:pathData="M30,30L40,30C41.1,30 42,30.9 42,32L42,42C42,43.1 41.1,44 40,44L30,44C28.9,44 28,43.1 28,42L28,32C28,30.9 28.9,30 30,30Z"
+      android:fillColor="#F5F5F5"
+      android:strokeColor="#D0D0D0"
+      android:strokeWidth="1"/>
+  
+  <!-- NFC antenna lines -->
+  <path
+      android:pathData="M45,35L55,35"
+      android:strokeColor="#4CAF50"
+      android:strokeWidth="2"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M45,40L55,40"
+      android:strokeColor="#4CAF50"
+      android:strokeWidth="2"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M45,45L55,45"
+      android:strokeColor="#4CAF50"
+      android:strokeWidth="2"
+      android:strokeLineCap="round"/>
+  
+  <!-- Tangem logo area -->
+  <path
+      android:pathData="M60,35L75,35C76.1,35 77,35.9 77,37L77,47C77,48.1 76.1,49 75,49L60,49C58.9,49 58,48.1 58,47L58,37C58,35.9 58.9,35 60,35Z"
+      android:fillColor="#F8F9FA"
+      android:strokeColor="#E2E3E3"
+      android:strokeWidth="1"/>
+  
+  <!-- Tangem text -->
+  <path
+      android:pathData="M62,38L73,38"
+      android:strokeColor="#666666"
+      android:strokeWidth="1"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M62,41L70,41"
+      android:strokeColor="#666666"
+      android:strokeWidth="1"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M62,44L72,44"
+      android:strokeColor="#666666"
+      android:strokeWidth="1"
+      android:strokeLineCap="round"/>
+  
+  <!-- Security indicator -->
+  <path
+      android:pathData="M30,55L35,55"
+      android:strokeColor="#4CAF50"
+      android:strokeWidth="2"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M30,58L35,58"
+      android:strokeColor="#4CAF50"
+      android:strokeWidth="2"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M30,61L35,61"
+      android:strokeColor="#4CAF50"
+      android:strokeWidth="2"
+      android:strokeLineCap="round"/>
+</vector>

@@ -33,7 +33,10 @@ import io.gnosis.safe.ui.settings.owner.intro.OwnerInfoFragment
 import io.gnosis.safe.ui.settings.owner.intro.OwnerInfoGenerateFragment
 import io.gnosis.safe.ui.settings.owner.intro.OwnerInfoKeystoneFragment
 import io.gnosis.safe.ui.settings.owner.intro.OwnerInfoLedgerFragment
+import io.gnosis.safe.ui.settings.owner.intro.OwnerInfoTangemFragment
 import io.gnosis.safe.ui.settings.owner.keystone.KeystoneRequestSignatureFragment
+import io.gnosis.safe.ui.settings.owner.tangem.TangemOwnerSelectionFragment
+import io.gnosis.safe.ui.settings.owner.tangem.TangemSignDialog
 import io.gnosis.safe.ui.settings.owner.ledger.LedgerOwnerSelectionFragment
 import io.gnosis.safe.ui.settings.owner.ledger.LedgerTabsFragment
 import io.gnosis.safe.ui.settings.owner.ledger.LedgerDeviceListFragment
@@ -41,6 +44,7 @@ import io.gnosis.safe.ui.settings.owner.ledger.LedgerSignDialog
 import io.gnosis.safe.ui.settings.owner.list.OwnerListFragment
 import io.gnosis.safe.ui.settings.owner.keystone.KeystoneOwnerSelectionFragment
 import io.gnosis.safe.ui.settings.owner.selection.OwnerSelectionFragment
+import io.gnosis.safe.ui.settings.owner.tangem.TangemSignFragment
 import io.gnosis.safe.ui.settings.safe.AdvancedSafeSettingsFragment
 import io.gnosis.safe.ui.settings.safe.SafeSettingsEditNameFragment
 import io.gnosis.safe.ui.settings.safe.SafeSettingsFragment
@@ -111,6 +115,12 @@ interface ViewComponent {
     fun inject(fragment: OwnerInfoLedgerFragment)
 
     fun inject(fragment: OwnerInfoKeystoneFragment)
+
+    fun inject(fragment: OwnerInfoTangemFragment)
+
+    fun inject(fragment: TangemOwnerSelectionFragment)
+
+    fun inject(dialog: TangemSignDialog)
 
     fun inject(fragment: OwnerSelectionFragment)
 
@@ -199,6 +209,8 @@ interface ViewComponent {
     fun inject(fragment: LedgerDeviceListFragment)
 
     fun inject(fragment: KeystoneRequestSignatureFragment)
+
+    fun inject(fragment: TangemSignFragment)
 
     // Dialogs
     fun inject(dialog: EnsInputDialog)

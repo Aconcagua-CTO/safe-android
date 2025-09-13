@@ -17,10 +17,13 @@ class UpdateChainInfoWorker(
 
     override suspend fun doWork(): Result {
         return try {
-            //TODO: get chains for local safes
-            val chains = chainInfoRepository.getChainInfo().results
+            // Initialize with build variant specific chains
+            chainInfoRepository.initializeSupportedChains()
+            
+            // Update chain info for existing safes
             val safes = safeRepository.getSafes()
-            chainInfoRepository.updateChainInfo(chains, safes)
+            chainInfoRepository.updateChainInfo(emptyList(), safes)
+            
             Result.success()
         } catch (e: Exception) {
             tracker.logException(e)

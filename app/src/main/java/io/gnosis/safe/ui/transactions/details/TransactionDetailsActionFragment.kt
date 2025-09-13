@@ -110,6 +110,9 @@ class TransactionDetailsActionFragment : BaseViewBindingFragment<FragmentTransac
 
                 it.parameters?.forEach {
                     when (it) {
+                        is Param.Unknown -> {
+                            // Handle unknown parameter type - skip for now
+                        }
                         is Param.Address -> {
                             content.addView(
                                 requireContext().getLabeledAddressItem(

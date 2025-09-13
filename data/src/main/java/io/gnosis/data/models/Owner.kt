@@ -42,7 +42,8 @@ data class Owner(
         IMPORTED(0),
         GENERATED(1),
         LEDGER_NANO_X(2),
-        KEYSTONE(3);
+        KEYSTONE(3),
+        TANGEM(4);
 
         companion object {
             fun get(value: Int) = when (value) {
@@ -50,6 +51,7 @@ data class Owner(
                 1 -> GENERATED
                 2 -> LEDGER_NANO_X
                 3 -> KEYSTONE
+                4 -> TANGEM
                 else -> IMPORTED
             }
         }

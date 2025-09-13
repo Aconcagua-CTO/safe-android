@@ -1,0 +1,35 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorOnSurface">
+  <!-- Card body -->
+  <path
+      android:pathData="M4,6C4,4.9 4.9,4 6,4L18,4C19.1,4 20,4.9 20,6L20,18C20,19.1 19.1,20 18,20L6,20C4.9,20 4,19.1 4,18L4,6Z"
+      android:fillColor="@android:color/white"
+      android:strokeColor="@color/icon"
+      android:strokeWidth="1"/>
+  
+  <!-- Card chip -->
+  <path
+      android:pathData="M6,8L9,8C9.55,8 10,8.45 10,9L10,12C10,12.55 9.55,13 9,13L6,13C5.45,13 5,12.55 5,12L5,9C5,8.45 5.45,8 6,8Z"
+      android:fillColor="@color/icon"/>
+  
+  <!-- Question mark -->
+  <path
+      android:pathData="M12,2C6.48,2 2,6.48 2,12s4.48,10 10,10 10,-4.48 10,-10S17.52,2 12,2zM13,17h-2v-2h2v2zM13,13h-2L11,7h2v6z"
+      android:fillColor="#FF9800"/>
+  
+  <!-- NFC indicator -->
+  <path
+      android:pathData="M16,6L18,6"
+      android:strokeColor="@color/icon"
+      android:strokeWidth="1"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M16,7L18,7"
+      android:strokeColor="@color/icon"
+      android:strokeWidth="1"
+      android:strokeLineCap="round"/>
+</vector>

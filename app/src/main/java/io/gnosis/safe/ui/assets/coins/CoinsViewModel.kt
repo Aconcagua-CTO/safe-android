@@ -87,6 +87,9 @@ class CoinsViewModel
             Banner.Type.PASSCODE -> {
                 result.add(Banner(Banner.Type.PASSCODE))
             }
+            Banner.Type.NONE -> {
+                // No banner to add for NONE type
+            }
         }
 
         coinBalanceData.items.forEach {
@@ -119,6 +122,9 @@ class CoinsViewModel
                 settingsHandler.showPasscodeBanner = false
                 tracker.logBannerPasscodeSkip()
             }
+            Banner.Type.NONE -> {
+                // No action needed for NONE type
+            }
         }
         safeLaunch {
             updateState { CoinsState(loading = false, refreshing = false, viewAction = DismissOwnerBanner) }
@@ -134,6 +140,9 @@ class CoinsViewModel
             Banner.Type.PASSCODE -> {
                 settingsHandler.showPasscodeBanner = false
                 tracker.logBannerPasscodeCreate()
+            }
+            Banner.Type.NONE -> {
+                // No action needed for NONE type
             }
         }
         safeLaunch {

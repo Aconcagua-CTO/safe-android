@@ -65,9 +65,26 @@ class TransactionDetailsViewModel
             if (executionInfo is DetailedExecutionInfo.MultisigExecutionDetails) {
                 canSign = canBeSignedFromDevice(executionInfo, owners)
                 canExecute = canBeExecutedFromDevice(executionInfo, owners)
-                nextInLine = safeInfo.nonce == executionInfo.nonce
+                nextInLine = safeInfo?.nonce == executionInfo.nonce
                 safeOwner = isOwner(executionInfo, owners)
                 txLocal = transactionLocalRepository.updateLocalTx(activeSafe, executionInfo.safeTxHash)
+                
+                // Debug logging for button state
+                android.util.Log.i("TransactionDetailsViewModel", "═══ BUTTON STATE DEBUG ═══")
+                android.util.Log.i("TransactionDetailsViewModel", "canSign: $canSign")
+                android.util.Log.i("TransactionDetailsViewModel", "canExecute: $canExecute") 
+                android.util.Log.i("TransactionDetailsViewModel", "safeOwner (hasOwnerKey): $safeOwner")
+                android.util.Log.i("TransactionDetailsViewModel", "nextInLine: $nextInLine")
+                android.util.Log.i("TransactionDetailsViewModel", "txStatus: ${txDetails?.txStatus}")
+                android.util.Log.i("TransactionDetailsViewModel", "confirmations: ${executionInfo.confirmations.size}/${executionInfo.confirmationsRequired}")
+                android.util.Log.i("TransactionDetailsViewModel", "Local owners count: ${owners.size}")
+                owners.forEach { owner ->
+                    android.util.Log.i("TransactionDetailsViewModel", "Local owner: ${owner.address.asEthereumAddressString()} (${owner.type})")
+                }
+                android.util.Log.i("TransactionDetailsViewModel", "Safe signers:")
+                executionInfo.signers.forEach { signer ->
+                    android.util.Log.i("TransactionDetailsViewModel", "Safe signer: ${signer.value}")
+                }
             }
 
             var txDetailsViewData = txDetails?.toTransactionDetailsViewData(
@@ -136,9 +153,11 @@ class TransactionDetailsViewModel
         executionInfo: DetailedExecutionInfo.MultisigExecutionDetails,
         localOwners: List<Owner>
     ): Boolean {
-        //TODO: Modify this check when we have tx execution on Ledger Nano X
-        val ownersThatCanExecute = localOwners.filter { it.type != Owner.Type.LEDGER_NANO_X && executionInfo.signers.contains(AddressInfo(it.address))}
-        return ownersThatCanExecute.isNotEmpty() && executionInfo.confirmations.size >= executionInfo.confirmationsRequired
+        // FIXED: Match web frontend behavior - any local key can execute if threshold is met
+        // The executor doesn't need to be a Safe owner, just needs to pay gas fees
+        // CRITICAL FIX: Exclude Tangem from execution - only local keys can execute
+        val keysAvailableForExecution = localOwners.filter { it.type != Owner.Type.LEDGER_NANO_X && it.type != Owner.Type.TANGEM }
+        return keysAvailableForExecution.isNotEmpty() && executionInfo.confirmations.size >= executionInfo.confirmationsRequired
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -213,7 +232,24 @@ class TransactionDetailsViewModel
                         confirmation.signer.value != possibleSigner.value
                     }
                 }
-                //FIXME: validate safeTxHash here and abort flow if validation fails
+                
+                // 🔧 CRITICAL FIX: Calculate safeTxHash the same way as proposal flow
+                // This ensures we sign the same hash that the proposal flow would generate
+                val contractVersion = safe.version?.let { SemVer.parse(it) } ?: SemVer(0, 0, 0)
+                val calculatedSafeTxHash = calculateSafeTxHash(
+                    contractVersion,
+                    safe.chainId,
+                    safe.address,
+                    txDetails!!,
+                    executionInfo
+                ).toHexString().addHexPrefix()
+                
+                android.util.Log.i("TransactionDetailsViewModel", "═══ CONFIRMATION SAFETXHASH ANALYSIS ═══")
+                android.util.Log.i("TransactionDetailsViewModel", "API provided safeTxHash: ${executionInfo.safeTxHash}")
+                android.util.Log.i("TransactionDetailsViewModel", "Calculated safeTxHash: $calculatedSafeTxHash")
+                android.util.Log.i("TransactionDetailsViewModel", "Match: ${executionInfo.safeTxHash == calculatedSafeTxHash}")
+                android.util.Log.i("TransactionDetailsViewModel", "🔧 USING CALCULATED HASH (same as proposal flow)")
+                
                 updateState {
                     TransactionDetailsViewState(
                         ViewAction.NavigateTo(
@@ -223,7 +259,7 @@ class TransactionDetailsViewModel
                                 }.toTypedArray(),
                                 signingMode = SigningMode.CONFIRMATION,
                                 chain = safe.chain,
-                                safeTxHash = executionInfo.safeTxHash
+                                safeTxHash = calculatedSafeTxHash // Use calculated hash instead of API hash
                             )
                         )
                     )

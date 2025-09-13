@@ -5,6 +5,7 @@ import io.gnosis.data.backend.rpc.RpcClient
 import io.gnosis.data.models.Chain
 import io.gnosis.data.models.Owner
 import io.gnosis.data.models.Safe
+import io.gnosis.data.models.baseRpcUrl
 import io.gnosis.data.models.transaction.DetailedExecutionInfo
 import io.gnosis.data.models.transaction.TxData
 import io.gnosis.data.repositories.CredentialsRepository
@@ -29,6 +30,7 @@ import pm.gnosis.svalinn.accounts.utils.hash
 import pm.gnosis.svalinn.accounts.utils.rlp
 import pm.gnosis.utils.asEthereumAddressString
 import pm.gnosis.utils.toHexString
+import timber.log.Timber
 import java.math.BigDecimal
 import java.math.BigInteger
 import javax.inject.Inject
@@ -112,12 +114,24 @@ class TxReviewViewModel
                 TxReviewState(viewAction = Loading(true))
             }
             val owners = credentialsRepository.owners().map { OwnerViewData(it.address, it.name, it.type) }
-            activeSafe.signingOwners.let {
-                val acceptedOwners = owners.filter { localOwner ->
-                    activeSafe.signingOwners.any {
-                        localOwner.address == it
-                    }
-                }
+            
+            // FIXED: Match web frontend behavior - any local key can execute (not just Safe signers)
+            val acceptedOwners = owners.filter { localOwner ->
+                // Allow any key type except Ledger Nano X and Tangem (hardware wallets can't execute)
+                localOwner.type != Owner.Type.LEDGER_NANO_X && localOwner.type != Owner.Type.TANGEM
+            }
+            
+            android.util.Log.i("TxReviewViewModel", "═══ EXECUTION KEY SELECTION ═══")
+            android.util.Log.i("TxReviewViewModel", "Total local owners: ${owners.size}")
+            android.util.Log.i("TxReviewViewModel", "Accepted for execution: ${acceptedOwners.size}")
+            owners.forEach { owner ->
+                val isAccepted = acceptedOwners.contains(owner)
+                android.util.Log.i("TxReviewViewModel", "Owner: ${owner.address.asEthereumAddressString()} (${owner.type}) - Accepted: $isAccepted")
+            }
+            android.util.Log.i("TxReviewViewModel", "Safe signers:")
+            activeSafe.signingOwners.forEach { signer ->
+                android.util.Log.i("TxReviewViewModel", "Safe signer: ${signer.asEthereumAddressString()}")
+            }
                 // select owner with highest balance
                 kotlin.runCatching {
                     rpcClient.getBalances(acceptedOwners.map { it.address })
@@ -125,7 +139,7 @@ class TxReviewViewModel
                     executionKey = acceptedOwners
                         // TODO: Remove this filter when Ledger tx execution is implemented
                         .filter {
-                            it.type != Owner.Type.LEDGER_NANO_X
+                            it.type != Owner.Type.LEDGER_NANO_X && it.type != Owner.Type.TANGEM
                         }
                         .mapIndexed { index, owner ->
                             owner to it[index]
@@ -145,10 +159,29 @@ class TxReviewViewModel
                     }
                     estimate()
 
-                }.onFailure {
-                    throw LoadBalancesFailed
+                }.onFailure { error ->
+                    android.util.Log.e("TxReviewViewModel", "═══ BALANCE LOADING FAILED ═══")
+                    android.util.Log.e("TxReviewViewModel", "Error: ${error.message}")
+                    android.util.Log.e("TxReviewViewModel", "Error type: ${error.javaClass.simpleName}")
+                    android.util.Log.e("TxReviewViewModel", "Accepted owners count: ${acceptedOwners.size}")
+                    android.util.Log.e("TxReviewViewModel", "RPC URL: ${activeSafe.chain.baseRpcUrl()}")
+                    
+                    if (acceptedOwners.isEmpty()) {
+                        android.util.Log.e("TxReviewViewModel", "❌ NO ACCEPTED OWNERS - Cannot proceed with execution")
+                        throw IllegalStateException("No execution keys available")
+                    } else {
+                        android.util.Log.w("TxReviewViewModel", "⚠️ Using first owner without balance check")
+                        // Fallback: use first available owner without balance check
+                        executionKey = acceptedOwners.first().copy(
+                            balance = "Unknown",
+                            zeroBalance = false
+                        )
+                        updateState {
+                            TxReviewState(viewAction = DefaultKey(key = executionKey))
+                        }
+                        estimate()
+                    }
                 }
-            }
         }
     }
 
@@ -356,6 +389,10 @@ class TxReviewViewModel
                 ethTxLegacy.gasPrice = Wei.fromGWei(this@TxReviewViewModel.gasPrice!!).value
                 ethTx = ethTxLegacy.copy(nonce = nonce!!)
             }
+            null -> {
+                // Handle null case - this shouldn't happen in normal flow
+                throw IllegalStateException("ethTx is null")
+            }
         }
     }
 
@@ -433,6 +470,92 @@ class TxReviewViewModel
                             )
                         }
                     }
+                    Owner.Type.TANGEM -> {
+                        // ═══ TANGEM EXECUTION EXPERIMENT ═══
+                        Timber.i("TxReviewViewModel: ═══ TANGEM EXECUTION EXPERIMENT ═══")
+                        Timber.i("TxReviewViewModel: 🧪 TESTING: Can SignRaw handle Ethereum transaction hashes?")
+                        Timber.i("TxReviewViewModel: 📋 CONTEXT: SignRaw worked for safeTxHash, trying with ethTxHash")
+                        Timber.i("TxReviewViewModel: 🔧 APPROACH: Use same SignRaw method for ethTxHash")
+                        
+                        // Log execution context
+                        Timber.i("TxReviewViewModel: ═══ EXECUTION CONTEXT ═══")
+                        Timber.i("TxReviewViewModel: Owner address: ${it.address.asEthereumAddressString()}")
+                        Timber.i("TxReviewViewModel: Owner type: TANGEM")
+                        Timber.i("TxReviewViewModel: Ethereum transaction hash: ${ethTxHash.toHexString()}")
+                        Timber.i("TxReviewViewModel: Hash length: ${ethTxHash.size} bytes")
+                        
+                        // Log Safe transaction details
+                        val executionInfo = executionInfo as DetailedExecutionInfo.MultisigExecutionDetails
+                        Timber.i("TxReviewViewModel: ═══ SAFE TRANSACTION DETAILS ═══")
+                        Timber.i("TxReviewViewModel: Safe address: ${activeSafe.address.asEthereumAddressString()}")
+                        Timber.i("TxReviewViewModel: Safe tx hash: ${executionInfo.safeTxHash}")
+                        Timber.i("TxReviewViewModel: Nonce: ${executionInfo.nonce}")
+                        Timber.i("TxReviewViewModel: Confirmations required: ${executionInfo.confirmationsRequired}")
+                        Timber.i("TxReviewViewModel: Confirmations submitted: ${executionInfo.confirmations.size}")
+                        
+                        // Log existing confirmations
+                        Timber.i("TxReviewViewModel: ═══ EXISTING CONFIRMATIONS ═══")
+                        executionInfo.confirmations.forEachIndexed { index, confirmation ->
+                            Timber.i("TxReviewViewModel: Confirmation $index: signer=${confirmation.signer.value}, signature=${confirmation.signature}")
+                        }
+                        
+                        // Log execution transaction details
+                        Timber.i("TxReviewViewModel: ═══ ETHEREUM TRANSACTION DETAILS ═══")
+                        ethTx?.let { tx ->
+                            when (tx) {
+                                is Transaction.Eip1559 -> {
+                                    Timber.i("TxReviewViewModel: Type: EIP1559")
+                                    Timber.i("TxReviewViewModel: Chain ID: ${tx.chainId}")
+                                    Timber.i("TxReviewViewModel: From: ${tx.from?.asEthereumAddressString()}")
+                                    Timber.i("TxReviewViewModel: To (Safe): ${tx.to?.asEthereumAddressString()}")
+                                    Timber.i("TxReviewViewModel: Gas: ${tx.gas}")
+                                    Timber.i("TxReviewViewModel: Max fee: ${tx.maxFeePerGas}")
+                                    Timber.i("TxReviewViewModel: Data available: ${tx.data != null}")
+                                }
+                                is Transaction.Legacy -> {
+                                    Timber.i("TxReviewViewModel: Type: Legacy")
+                                    Timber.i("TxReviewViewModel: Chain ID: ${tx.chainId}")
+                                    Timber.i("TxReviewViewModel: From: ${tx.from?.asEthereumAddressString()}")
+                                    Timber.i("TxReviewViewModel: To (Safe): ${tx.to?.asEthereumAddressString()}")
+                                    Timber.i("TxReviewViewModel: Gas: ${tx.gas}")
+                                    Timber.i("TxReviewViewModel: Gas price: ${tx.gasPrice}")
+                                    Timber.i("TxReviewViewModel: Data available: ${tx.data != null}")
+                                }
+                            }
+                        }
+                        
+                        // Log SignRaw expectations
+                        Timber.i("TxReviewViewModel: ═══ SIGNRAW EXECUTION EXPERIMENT ═══")
+                        Timber.i("TxReviewViewModel: 🎯 HYPOTHESIS: SignRaw can handle ethTxHash like safeTxHash")
+                        Timber.i("TxReviewViewModel: 🎯 EXPECTATION: Same derivation path as successful confirmation")
+                        Timber.i("TxReviewViewModel: 🎯 EXPECTATION: Should produce valid ECDSA signature for Ethereum transaction")
+                        Timber.i("TxReviewViewModel: 🔧 SDK STATUS: Modified to use SigningMethod.Code.SignRaw")
+                        
+                        // Log comparison with successful confirmation flow
+                        Timber.i("TxReviewViewModel: ═══ HASH TYPE COMPARISON ═══")
+                        Timber.i("TxReviewViewModel: ✅ CONFIRMATION: safeTxHash = ${executionInfo.safeTxHash}")
+                        Timber.i("TxReviewViewModel: 🧪 EXECUTION: ethTxHash = ${ethTxHash.toHexString()}")
+                        Timber.i("TxReviewViewModel: 📋 DIFFERENCE: Different hash algorithms, same SignRaw method")
+                        
+                        Timber.i("TxReviewViewModel: 🚀 ATTEMPTING TANGEM EXECUTION WITH SIGNRAW")
+                        
+                        updateState {
+                            TxReviewState(
+                                viewAction = ViewAction.NavigateTo(
+                                    TxReviewFragmentDirections.actionTxReviewFragmentToTangemSignDialog(
+                                        it.address.asEthereumAddressString(),
+                                        ethTxHash.toHexString(),
+                                        true
+                                    )
+                                )
+                            )
+                        }
+                        updateState {
+                            TxReviewState(
+                                viewAction = ViewAction.None
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -448,28 +571,98 @@ class TxReviewViewModel
 
     fun resumeExecutionFlow(signatureString: String? = null) {
         safeLaunch {
-            signatureString?.let {
-                setSignature(it)
+            Timber.i("TxReviewViewModel: ═══ RESUME EXECUTION FLOW ═══")
+            Timber.i("TxReviewViewModel: 🔄 RETURNING FROM TANGEM SIGNING")
+            
+            signatureString?.let { signature ->
+                Timber.i("TxReviewViewModel: ✅ SIGNATURE RECEIVED FROM TANGEM")
+                Timber.i("TxReviewViewModel: Signature: $signature")
+                Timber.i("TxReviewViewModel: Signature length: ${signature.length} chars")
+                Timber.i("TxReviewViewModel: Expected format: 0x[r(64)][s(64)][v(2)] = 132 chars")
+                
+                if (signature.length == 132) {
+                    Timber.i("TxReviewViewModel: ✅ SIGNATURE FORMAT: Correct length")
+                    val r = signature.substring(2, 66)
+                    val s = signature.substring(66, 130)
+                    val v = signature.substring(130, 132)
+                    Timber.i("TxReviewViewModel: r: $r")
+                    Timber.i("TxReviewViewModel: s: $s")
+                    Timber.i("TxReviewViewModel: v: $v")
+                } else {
+                    Timber.w("TxReviewViewModel: ⚠️ SIGNATURE FORMAT: Unexpected length")
+                }
+                
+                Timber.i("TxReviewViewModel: 🔧 SETTING SIGNATURE FOR EXECUTION")
+                setSignature(signature)
+            } ?: run {
+                Timber.w("TxReviewViewModel: ⚠️ NO SIGNATURE PROVIDED")
+                Timber.w("TxReviewViewModel: This might be a passcode unlock or other flow")
             }
+            
+            Timber.i("TxReviewViewModel: 🚀 PROCEEDING TO EXECUTION")
             sendForExecution()
         }
     }
 
     fun sendForExecution() {
         safeLaunch {
-            ethTxSignature?.let {
+            Timber.i("TxReviewViewModel: ═══ SEND FOR EXECUTION ═══")
+            Timber.i("TxReviewViewModel: 🎯 FINAL STEP: Execute transaction on blockchain")
+            
+            ethTxSignature?.let { signature ->
+                Timber.i("TxReviewViewModel: ✅ SIGNATURE AVAILABLE FOR EXECUTION")
+                Timber.i("TxReviewViewModel: Signature: r=${signature.r}, s=${signature.s}, v=${signature.v}")
+                
+                ethTx?.let { tx ->
+                    Timber.i("TxReviewViewModel: ═══ FINAL ETHEREUM TRANSACTION ═══")
+                    when (tx) {
+                        is Transaction.Eip1559 -> {
+                            Timber.i("TxReviewViewModel: Type: EIP1559")
+                            Timber.i("TxReviewViewModel: Chain ID: ${tx.chainId}")
+                            Timber.i("TxReviewViewModel: From: ${tx.from?.asEthereumAddressString()}")
+                            Timber.i("TxReviewViewModel: To (Safe): ${tx.to?.asEthereumAddressString()}")
+                            Timber.i("TxReviewViewModel: Gas: ${tx.gas}")
+                            Timber.i("TxReviewViewModel: Max fee: ${tx.maxFeePerGas}")
+                                    Timber.i("TxReviewViewModel: Data available: ${tx.data != null}")
+                        }
+                        is Transaction.Legacy -> {
+                            Timber.i("TxReviewViewModel: Type: Legacy")
+                            Timber.i("TxReviewViewModel: Chain ID: ${tx.chainId}")
+                            Timber.i("TxReviewViewModel: From: ${tx.from?.asEthereumAddressString()}")
+                            Timber.i("TxReviewViewModel: To (Safe): ${tx.to?.asEthereumAddressString()}")
+                            Timber.i("TxReviewViewModel: Gas: ${tx.gas}")
+                            Timber.i("TxReviewViewModel: Gas price: ${tx.gasPrice}")
+                                    Timber.i("TxReviewViewModel: Data available: ${tx.data != null}")
+                        }
+                    }
+                }
+                
+                Timber.i("TxReviewViewModel: 🚀 SENDING TRANSACTION TO BLOCKCHAIN")
+                
                 kotlin.runCatching {
-                    rpcClient.send(ethTx!!, it)
-                }.onSuccess {
+                    rpcClient.send(ethTx!!, signature)
+                }.onSuccess { txHash ->
+                    Timber.i("TxReviewViewModel: ═══ EXECUTION SUCCESS ═══")
+                    Timber.i("TxReviewViewModel: ✅ TRANSACTION SUBMITTED TO BLOCKCHAIN")
+                    Timber.i("TxReviewViewModel: Transaction hash: $txHash")
+                    Timber.i("TxReviewViewModel: 🎉 TANGEM EXECUTION FLOW COMPLETE!")
+                    
                     tracker.logTxExecSubmitted()
                     val executionInfo = executionInfo as DetailedExecutionInfo.MultisigExecutionDetails
+                    
+                    Timber.i("TxReviewViewModel: 💾 SAVING TRANSACTION LOCALLY")
+                    Timber.i("TxReviewViewModel: Safe tx hash: ${executionInfo.safeTxHash}")
+                    Timber.i("TxReviewViewModel: Safe nonce: ${executionInfo.nonce}")
+                    
                     localTxRepository.saveLocally(
                         tx = ethTx!!,
-                        txHash = it,
+                        txHash = txHash,
                         safeTxHash = executionInfo.safeTxHash,
                         safeTxNonce = executionInfo.nonce,
                         submittedAt = executionInfo.submittedAt.time
                     )
+                    
+                    Timber.i("TxReviewViewModel: 🎊 NAVIGATING TO SUCCESS SCREEN")
                     updateState {
                         TxReviewState(
                             viewAction =
@@ -478,9 +671,25 @@ class TxReviewViewModel
                             )
                         )
                     }
-                }.onFailure {
-                    throw TxSumbitFailed(it.cause ?: it)
+                }.onFailure { error ->
+                    Timber.e("TxReviewViewModel: ═══ EXECUTION FAILURE ═══")
+                    Timber.e("TxReviewViewModel: ❌ TRANSACTION EXECUTION FAILED")
+                    Timber.e("TxReviewViewModel: Error: ${error.message}")
+                    Timber.e("TxReviewViewModel: Error type: ${error.javaClass.simpleName}")
+                    error.printStackTrace()
+                    
+                    Timber.e("TxReviewViewModel: 🔍 DEBUGGING INFORMATION")
+                    Timber.e("TxReviewViewModel: - Check if RPC endpoint is accessible")
+                    Timber.e("TxReviewViewModel: - Check if signature is valid for ethTxHash")
+                    Timber.e("TxReviewViewModel: - Check if gas estimation is sufficient")
+                    Timber.e("TxReviewViewModel: - Check if account has sufficient balance")
+                    
+                    throw TxSumbitFailed(error.cause ?: error)
                 }
+            } ?: run {
+                Timber.e("TxReviewViewModel: ❌ NO SIGNATURE AVAILABLE")
+                Timber.e("TxReviewViewModel: Cannot execute transaction without signature")
+                throw IllegalStateException("No signature available for execution")
             }
         }
     }

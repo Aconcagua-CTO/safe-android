@@ -1,13 +1,13 @@
 package io.gnosis.data.repositories
 
-import io.gnosis.data.backend.GatewayApi
+import io.gnosis.data.backend.DynamicGatewayApi
 import io.gnosis.data.models.Page
 import io.gnosis.data.models.Safe
 import io.gnosis.data.models.assets.CoinBalances
 import io.gnosis.data.models.assets.Collectible
 import pm.gnosis.crypto.utils.asEthereumAddressChecksumString
 
-class TokenRepository(private val gatewayApi: GatewayApi) {
+class TokenRepository(private val gatewayApi: DynamicGatewayApi) {
 
     suspend fun loadBalanceOf(safe: Safe, fiatCode: String): CoinBalances {
         val response = gatewayApi.loadBalances(address = safe.address.asEthereumAddressChecksumString(), fiat = fiatCode, chainId = safe.chainId)

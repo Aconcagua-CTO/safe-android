@@ -145,6 +145,9 @@ class BannerViewHolder(private val viewBinding: ItemBannerBinding) : BaseCoinsVi
                     bannerText.text = context.getString(R.string.banner_passcode_text)
                     bannerAction.text = context.getString(R.string.banner_passcode_action)
                 }
+                Banner.Type.NONE -> {
+                    // No banner content for NONE type
+                }
             }
             bannerListener?.let {
                 bannerClose.setOnClickListener {
@@ -158,6 +161,9 @@ class BannerViewHolder(private val viewBinding: ItemBannerBinding) : BaseCoinsVi
                         }
                         Banner.Type.PASSCODE -> {
                             Navigation.findNavController(it).navigate(R.id.action_to_passcode_setup)
+                        }
+                        Banner.Type.NONE -> {
+                            // No action needed for NONE type
                         }
                     }
                 }

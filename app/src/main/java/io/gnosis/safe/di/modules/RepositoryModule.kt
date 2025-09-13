@@ -4,6 +4,7 @@ import androidx.work.WorkManager
 import dagger.Module
 import dagger.Provides
 import io.gnosis.data.backend.GatewayApi
+import io.gnosis.data.backend.DynamicGatewayApi
 import io.gnosis.data.backend.rpc.RpcClient
 import io.gnosis.data.db.daos.ChainDao
 import io.gnosis.data.db.daos.SafeDao
@@ -25,7 +26,7 @@ class RepositoryModule {
     fun provideSafeRepository(
         safeDao: SafeDao,
         preferencesManager: PreferencesManager,
-        gatewayApi: GatewayApi
+        gatewayApi: DynamicGatewayApi
     ): SafeRepository {
         return SafeRepository(safeDao, preferencesManager, gatewayApi)
     }
@@ -33,10 +34,9 @@ class RepositoryModule {
     @Provides
     @Singleton
     fun provideChainRepository(
-        chainDao: ChainDao,
-        gatewayApi: GatewayApi
+        chainDao: ChainDao
     ): ChainInfoRepository {
-        return ChainInfoRepository(chainDao, gatewayApi)
+        return ChainInfoRepository(chainDao)
     }
 
     @Provides
@@ -68,12 +68,12 @@ class RepositoryModule {
 
     @Provides
     @Singleton
-    fun providesTokenRepository(gatewayApi: GatewayApi): TokenRepository =
+    fun providesTokenRepository(gatewayApi: DynamicGatewayApi): TokenRepository =
         TokenRepository(gatewayApi)
 
     @Provides
     @Singleton
-    fun providesTransactionRepository(gatewayApi: GatewayApi): TransactionRepository =
+    fun providesTransactionRepository(gatewayApi: DynamicGatewayApi): TransactionRepository =
         TransactionRepository(gatewayApi)
 
     @Provides

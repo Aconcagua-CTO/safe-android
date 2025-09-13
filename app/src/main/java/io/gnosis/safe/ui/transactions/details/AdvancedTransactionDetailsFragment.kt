@@ -164,7 +164,9 @@ open class AdvancedTransactionDetailsFragment : BaseViewBindingFragment<Fragment
                 executionInfo?.let {
 
                     when (executionInfo) {
-
+                        null -> {
+                            // No execution info to display
+                        }
                         is DetailedExecutionInfo.ModuleExecutionDetails -> {
 
                             val info = executionInfo as DetailedExecutionInfo.ModuleExecutionDetails

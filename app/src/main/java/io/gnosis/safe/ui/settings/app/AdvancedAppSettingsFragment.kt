@@ -79,14 +79,6 @@ class AdvancedAppSettingsFragment : BaseViewBindingFragment<FragmentSettingsAppA
                 settingsHandler.allowTracking(requireContext(), trackingPermission.settingSwitch.isChecked)
             }
 
-            if (CLIENT_GATEWAY_URL.contains("staging")) {
-                debugContainer.visible(true)
-                crashTheApp.setOnClickListener {
-                    throw RuntimeException("Deliberate Crash")
-                }
-            } else {
-                debugContainer.visible(false)
-            }
         }
     }
 

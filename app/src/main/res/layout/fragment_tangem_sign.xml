@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_secondary">
+
+    <!-- Header Toolbar -->
+    <LinearLayout
+        android:id="@+id/toolbar_layout"
+        style="@style/Toolbar"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_weight="0"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/back"
+            android:gravity="center_vertical"
+            android:src="@drawable/ic_baseline_arrow_back_24" />
+
+        <TextView
+            android:id="@+id/title"
+            style="@style/ToolbarTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/tangem_sign_title" />
+
+    </LinearLayout>
+
+    <!-- Content -->
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_layout">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/default_margin">
+
+            <!-- Subtitle -->
+            <TextView
+                android:id="@+id/subtitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/tangem_sign_subtitle"
+                android:textSize="16sp"
+                android:textColor="@color/label_secondary"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Transaction Hash Container -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/transaction_hash_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/default_margin"
+                android:background="@drawable/background_rounded_rectangle"
+                android:padding="@dimen/default_margin"
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/subtitle">
+
+                <TextView
+                    android:id="@+id/transaction_hash_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tangem_sign_hash_label"
+                    android:textSize="12sp"
+                    android:textColor="@color/label_secondary"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/transaction_hash"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/default_small_margin"
+                    android:fontFamily="monospace"
+                    android:textSize="14sp"
+                    android:textColor="@color/label_primary"
+                    android:textIsSelectable="true"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/transaction_hash_label"
+                    tools:text="A1B2C3D4E5F6789012345678901234567890ABCDEF" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- NFC Card Image -->
+            <ImageView
+                android:id="@+id/card_image"
+                android:layout_width="200dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="@dimen/default_large_margin"
+                android:contentDescription="@string/tangem_card_image_description"
+                android:src="@drawable/ic_illustration_tangem"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/transaction_hash_container" />
+
+            <!-- Progress Indicator -->
+            <ProgressBar
+                android:id="@+id/progress_indicator"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="@dimen/default_margin"
+                android:indeterminate="true"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/card_image"
+                tools:visibility="visible" />
+
+            <!-- Scan Instruction -->
+            <TextView
+                android:id="@+id/scan_card_instruction"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/default_margin"
+                android:gravity="center"
+                android:text="@string/tangem_sign_tap_instruction"
+                android:textSize="16sp"
+                android:textColor="@color/label_primary"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/progress_indicator" />
+
+            <!-- NFC Status -->
+            <LinearLayout
+                android:id="@+id/nfc_status_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/default_margin"
+                android:gravity="center"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/scan_card_instruction">
+
+                <ImageView
+                    android:id="@+id/nfc_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="@string/nfc_icon_description"
+                    android:src="@drawable/ic_illustration_nfc"
+                    app:tint="@color/primary" />
+
+                <TextView
+                    android:id="@+id/nfc_status_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/default_small_margin"
+                    android:text="@string/nfc_enabled"
+                    android:textSize="12sp"
+                    android:textColor="@color/label_secondary" />
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

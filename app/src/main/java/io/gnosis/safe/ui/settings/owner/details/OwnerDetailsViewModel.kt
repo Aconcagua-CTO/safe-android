@@ -94,6 +94,8 @@ class OwnerDetailsViewModel
                 Owner.Type.IMPORTED -> tracker.setNumKeysImported(credentialsRepository.ownerCount(owner.type))
                 Owner.Type.GENERATED -> tracker.setNumKeysGenerated(credentialsRepository.ownerCount(owner.type))
                 Owner.Type.LEDGER_NANO_X -> tracker.setNumKeysLedger(credentialsRepository.ownerCount(owner.type))
+                Owner.Type.KEYSTONE -> tracker.setNumKeysKeystone(credentialsRepository.ownerCount(owner.type))
+                Owner.Type.TANGEM -> tracker.setNumKeysTangem(credentialsRepository.ownerCount(owner.type))
             }
 
             val activeSafe = safeRepository.getActiveSafe()

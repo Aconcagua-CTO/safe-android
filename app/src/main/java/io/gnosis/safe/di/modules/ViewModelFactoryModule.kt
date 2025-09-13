@@ -35,6 +35,7 @@ import io.gnosis.safe.ui.settings.owner.ledger.LedgerSignViewModel
 import io.gnosis.safe.ui.settings.owner.list.OwnerListViewModel
 import io.gnosis.safe.ui.settings.owner.keystone.KeystoneOwnerSelectionViewModel
 import io.gnosis.safe.ui.settings.owner.selection.OwnerSelectionViewModel
+import io.gnosis.safe.ui.settings.owner.tangem.TangemSignViewModel
 import io.gnosis.safe.ui.settings.safe.AdvancedSafeSettingsViewModel
 import io.gnosis.safe.ui.settings.safe.SafeSettingsEditNameViewModel
 import io.gnosis.safe.ui.settings.safe.SafeSettingsViewModel
@@ -257,6 +258,11 @@ abstract class ViewModelFactoryModule {
     @IntoMap
     @ViewModelKey(LedgerSignViewModel::class)
     abstract fun providesLedgerSignViewModel(viewModel: LedgerSignViewModel): ViewModel
+
+    @Binds
+    @IntoMap
+    @ViewModelKey(TangemSignViewModel::class)
+    abstract fun providesTangemSignViewModel(viewModel: TangemSignViewModel): ViewModel
 
     @Binds
     @Singleton

@@ -481,6 +481,61 @@
     <string name="signing_owner_connect_ledger_desc">Add a key from your hardware wallet</string>
     <string name="signing_owner_connect_keystone_title">Connect Keystone</string>
     <string name="signing_owner_connect_keystone_desc">Connect your key via QR code</string>
+    <string name="signing_owner_connect_tangem_title">Connect Tangem</string>
+    <string name="signing_owner_connect_tangem_desc">Connect your Tangem card via NFC</string>
+
+    <!-- Tangem-specific strings -->
+    <string name="import_owner_key_tangem_title">Import owner key</string>
+    <string name="import_owner_key_tangem_how_does_it_work_title">How does it work?</string>
+    <string name="import_owner_key_tangem_how_does_it_work_desc">Tangem cards store your private keys securely and communicate via NFC. Simply tap your card to your phone to sign transactions.</string>
+    <string name="import_owner_key_tangem_nfc_communication_title">NFC Communication</string>
+    <string name="import_owner_key_tangem_nfc_communication_desc">Your Tangem card communicates with your phone using Near Field Communication (NFC) technology for secure, contactless transactions.</string>
+    <string name="import_owner_key_tangem_how_secure_is_that_title">How secure is that?</string>
+    <string name="import_owner_key_tangem_how_secure_is_that_desc">Tangem cards use certified secure chips to store your private keys. The keys never leave the card, ensuring maximum security.</string>
+    <string name="tangem_scan_card_instruction">Tap your Tangem card to your phone to scan for available addresses.</string>
+
+    <!-- Tangem signing strings -->
+    <string name="tangem_sign_confirm">Confirm on Tangem</string>
+    <string name="tangem_sign_reject">Reject on Tangem</string>
+    <string name="tangem_sign_verify">Tap your Tangem card to sign the transaction</string>
+    <string name="tangem_sign_cancel">Cancel</string>
+    
+    <!-- Tangem Signing Fragment -->
+    <string name="tangem_sign_title">Sign Transaction</string>
+    <string name="tangem_sign_subtitle">Hold your Tangem card to the back of your phone to sign the transaction</string>
+    <string name="tangem_sign_confirm_title">Confirm Transaction</string>
+    <string name="tangem_sign_confirm_subtitle">Hold your Tangem card to the back of your phone to confirm the transaction</string>
+    <string name="tangem_sign_reject_title">Reject Transaction</string>
+    <string name="tangem_sign_reject_subtitle">Hold your Tangem card to the back of your phone to reject the transaction</string>
+    <string name="tangem_sign_hash_label">Transaction Hash:</string>
+    <string name="tangem_sign_tap_instruction">Tap your Tangem card to the back of your phone</string>
+    <string name="tangem_sign_scanning">Connecting to card…</string>
+    <string name="tangem_sign_processing">Processing signature…</string>
+    <string name="tangem_sign_success">Signature created successfully!</string>
+    <string name="tangem_sign_scan_first">Getting card information…</string>
+    <string name="tangem_nfc_app_conflict_title">Multiple Tangem Apps Detected</string>
+    <string name="tangem_nfc_app_conflict_message">If the official Tangem app opens when scanning, please close it and return to this app. The signing will continue automatically.</string>
+    <string name="tangem_card_image_description">Tangem card illustration</string>
+    <string name="nfc_icon_description">NFC status icon</string>
+    <string name="nfc_enabled">NFC Ready</string>
+
+    <!-- Tangem device connection and error messages -->
+    <string name="tangem_device_search">Looking for Tangem cards</string>
+    <string name="tangem_device_not_found">No Tangem card found</string>
+    <string name="tangem_nfc_not_available">NFC is not available on this device</string>
+    <string name="tangem_nfc_disabled">NFC is disabled. Please enable NFC in your device settings.</string>
+    <string name="tangem_card_not_supported">This Tangem card is not supported</string>
+    <string name="tangem_card_error">Error communicating with Tangem card</string>
+    <string name="tangem_no_addresses_loaded">No addresses could be loaded from the Tangem card</string>
+    <string name="tangem_please_make_sure">Please make sure</string>
+    <string name="tangem_card_unlocked">Your Tangem card is unlocked</string>
+    <string name="tangem_nfc_enabled">NFC is enabled</string>
+    <string name="tangem_card_tap_instruction">Tap your Tangem card to your phone</string>
+    <string name="tangem_card_scanning">Scanning for Tangem cards...</string>
+    <string name="tangem_card_found">Tangem card found</string>
+    <string name="tangem_card_connecting">Connecting to Tangem card...</string>
+    <string name="tangem_card_connected">Connected to Tangem card</string>
+    <string name="tangem_card_disconnected">Disconnected from Tangem card</string>
 
     <string name="signing_owner_dialog_remove">Remove</string>
     <string name="signing_owner_dialog_cancel">Cancel</string>
@@ -509,6 +564,7 @@
     <string name="signing_owner_details_owner_type_generated">Generated</string>
     <string name="signing_owner_details_owner_type_ledger">Ledger Nano X</string>
     <string name="signing_owner_details_owner_type_keystone">Keystone</string>
+    <string name="signing_owner_details_owner_type_tangem">Tangem</string>
     <string name="signing_owner_list_error_loading_data">Could not load more owner addresses</string>
 
     <string name="signing_owner_name_title">Enter key name</string>

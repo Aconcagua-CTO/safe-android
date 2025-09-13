@@ -124,9 +124,24 @@ data class Chain(
         const val COL_TEXT_COLOR = "text_color"
         const val COL_FEATURES = "features"
 
+        // Mainnet Chain IDs
         val ID_MAINNET = BigInteger.valueOf(1)
-        val ID_GOERLI = BigInteger.valueOf(5)
+        val ID_ARBITRUM = BigInteger.valueOf(42161)
+        val ID_POLYGON = BigInteger.valueOf(137)
         val ID_GNOSIS = BigInteger.valueOf(100)
+        val ID_ROOTSTOCK = BigInteger.valueOf(30)
+        val ID_BASE = BigInteger.valueOf(8453)
+        
+        // Testnet Chain IDs
+        val ID_SEPOLIA = BigInteger.valueOf(11155111)
+        val ID_ARBITRUM_GOERLI = BigInteger.valueOf(421613)
+        val ID_MUMBAI = BigInteger.valueOf(80001)
+        val ID_CHIADO = BigInteger.valueOf(10200)
+        val ID_ROOTSTOCK_TESTNET = BigInteger.valueOf(31)
+        val ID_BASE_SEPOLIA = BigInteger.valueOf(84532)
+        
+        // Legacy constants (keep for backward compatibility)
+        val ID_GOERLI = BigInteger.valueOf(5) // Deprecated, use Sepolia instead
 
         val DEFAULT_CHAIN =  Chain(
             BuildConfig.CHAIN_ID.toBigInteger(),
@@ -149,7 +164,7 @@ data class Chain(
 
 fun Chain.baseRpcUrl(): String {
     return if (rpcAuthentication == RpcAuthentication.API_KEY_PATH) {
-        URI.create(rpcUri).resolve(BuildConfig.INFURA_API_KEY).toString()
+        URI.create(rpcUri).resolve(BuildConfig.INFURA_API_KEY + "/").toString()
     } else {
         rpcUri
     }

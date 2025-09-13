@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "371212123512",
+    "project_id": "lanin-6339b",
+    "storage_bucket": "lanin-6339b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:371212123512:android:7d4f8f0fea0f79cb36dc8d",
+        "android_client_info": {
+          "package_name": "ai.boveda.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "371212123512-349j0srepuj4hgeivctra6s9pem8mg4f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWzj9i2Vkp20Vc4rRyhipU4Y3Dal8lBDI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "371212123512-349j0srepuj4hgeivctra6s9pem8mg4f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:371212123512:android:03858da9d5289d3236dc8d",
+        "android_client_info": {
+          "package_name": "ai.boveda.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "371212123512-349j0srepuj4hgeivctra6s9pem8mg4f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWzj9i2Vkp20Vc4rRyhipU4Y3Dal8lBDI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "371212123512-349j0srepuj4hgeivctra6s9pem8mg4f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -10,11 +10,18 @@ apply from: '../buildsystem/coverage_report.gradle'
 apply from: '../buildsystem/test_dependencies.gradle'
 apply from: '../buildsystem/test_android_dependencies.gradle'
 
+def propOrEnv = { name, defaultVal = null ->
+    return (project.hasProperty(name) ? project.property(name) : System.getenv(name)) ?: defaultVal
+}
+
 android {
+    compileSdkVersion 34
     defaultConfig {
-        applicationId "io.gnosis.safe"
-        versionCode getInt("APP_VERSION_CODE", 908)
-        versionName getKey("APP_VERSION_NAME", "3.11.1")
+        minSdkVersion 24
+        targetSdkVersion 34
+        applicationId "ai.boveda.app"
+        versionCode getInt("APP_VERSION_CODE", 020)
+        versionName getKey("APP_VERSION_NAME", "0.2.0")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // Infura API key
@@ -49,10 +56,10 @@ android {
             storeFile file("../debug.keystore")
         }
         release {
-            storeFile file(getKey("SIGNING_STORE_FILE", "../gnosis-multisig-upload.jks"))
-            storePassword getKey("SIGNING_STORE_PASSWORD")
-            keyAlias "gnosis"
-            keyPassword getKey("SIGNING_KEY_PASSWORD")
+            storeFile file(propOrEnv("SIGNING_STORE_FILE", "../gnosis-multisig-upload.jks"))
+            storePassword propOrEnv("SIGNING_STORE_PASSWORD")
+            keyAlias "key0"  // matches your keystore alias
+            keyPassword propOrEnv("SIGNING_KEY_PASSWORD")
         }
     }
 
@@ -242,6 +249,9 @@ dependencies {
 
     // Keystone
     implementation "com.github.KeystoneHQ:keystone-sdk-android:$versions.keystone"
+
+    // Tangem
+    implementation "com.github.tangem:tangem-sdk-android:$versions.tangem"
 
 }
 

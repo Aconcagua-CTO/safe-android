@@ -217,7 +217,55 @@ class StartActivity : BaseActivity(), SafeOverviewNavigationHandler, AppStateLis
     private fun setupNav() {
         with(binding) {
             navBar.setupWithNavController(navController)
+            
+            // Add additional navigation handling to ensure correct destination
+            navBar.setOnItemSelectedListener { item ->
+                android.util.Log.d("StartActivity", "Bottom nav item selected: ${item.title} (id: ${item.itemId})")
+                
+                // Handle navigation manually to ensure it works correctly
+                try {
+                    when (item.itemId) {
+                        R.id.assetsFragment -> {
+                            android.util.Log.d("StartActivity", "🎯 User clicked Assets (Activos) - ensuring navigation to Assets Fragment")
+                            if (navController.currentDestination?.id != R.id.assetsFragment) {
+                                navController.navigate(R.id.assetsFragment)
+                            }
+                            true
+                        }
+                        R.id.transactionsFragment -> {
+                            android.util.Log.d("StartActivity", "🎯 User clicked Transactions - ensuring navigation to Transactions Fragment")
+                            if (navController.currentDestination?.id != R.id.transactionsFragment) {
+                                navController.navigate(R.id.transactionsFragment)
+                            }
+                            true
+                        }
+                        R.id.settingsFragment -> {
+                            android.util.Log.d("StartActivity", "🎯 User clicked Settings - ensuring navigation to Settings Fragment")
+                            if (navController.currentDestination?.id != R.id.settingsFragment) {
+                                navController.navigate(R.id.settingsFragment)
+                            }
+                            true
+                        }
+                        else -> {
+                            android.util.Log.w("StartActivity", "⚠️ Unknown navigation item clicked: ${item.itemId}")
+                            false
+                        }
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("StartActivity", "❌ Error during navigation: ${e.message}", e)
+                    false
+                }
+            }
+            
             navController.addOnDestinationChangedListener { _, destination, _ ->
+                // Add debug logging to track navigation
+                android.util.Log.d("StartActivity", "Navigation destination changed to: ${destination.label} (id: ${destination.id})")
+                
+                when (destination.id) {
+                    R.id.assetsFragment -> android.util.Log.d("StartActivity", "✅ Now showing Assets Fragment")
+                    R.id.transactionsFragment -> android.util.Log.d("StartActivity", "✅ Now showing Transactions Fragment") 
+                    R.id.settingsFragment -> android.util.Log.d("StartActivity", "✅ Now showing Settings Fragment")
+                }
 
                 if (destination.id == R.id.assetsFragment || destination.id == R.id.settingsFragment || destination.id == R.id.transactionsFragment) {
                     if (settingsHandler.showWhatsNew) {

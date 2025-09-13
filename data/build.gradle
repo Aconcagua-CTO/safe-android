@@ -32,6 +32,9 @@ android {
                         "}"
 
         buildConfigField javaTypes.STRING, "INFURA_API_KEY", asString(getKey("INFURA_API_KEY", ""))
+        
+        // Chain configuration flag - defaults to mainnet chains
+        buildConfigField javaTypes.BOOLEAN, "USE_TESTNET_CHAINS", "false"
 
     }
 
@@ -46,6 +49,9 @@ android {
             buildConfigField (javaTypes.STRING, "BLOCKCHAIN_SHORT_NAME", asString("sep"))
             buildConfigField javaTypes.STRING, "BLOCKCHAIN_NET_URL", asString(getKey("BLOCKCHAIN_NET_URL", "https://sepolia.infura.io/v3/"))
             buildConfigField javaTypes.STRING, "BLOCKCHAIN_EXPLORER_URL", asString(getKey("BLOCKCHAIN_NET_URL", "https://sepolia.etherscan.io/"))
+            
+            // Enable testnet chains for debug builds
+            buildConfigField javaTypes.BOOLEAN, "USE_TESTNET_CHAINS", "true"
         }
 
         profile {
@@ -57,6 +63,9 @@ android {
             buildConfigField (javaTypes.STRING, "BLOCKCHAIN_SHORT_NAME", asString("sep"))
             buildConfigField javaTypes.STRING, "BLOCKCHAIN_NET_URL", asString(getKey("BLOCKCHAIN_NET_URL", "https://sepolia.infura.io/v3/"))
             buildConfigField javaTypes.STRING, "BLOCKCHAIN_EXPLORER_URL", asString(getKey("BLOCKCHAIN_NET_URL", "https://sepolia.etherscan.io/"))
+            
+            // Enable testnet chains for profile builds
+            buildConfigField javaTypes.BOOLEAN, "USE_TESTNET_CHAINS", "true"
         }
 
         unsafe {
@@ -68,6 +77,9 @@ android {
             buildConfigField (javaTypes.STRING, "BLOCKCHAIN_SHORT_NAME", asString("sep"))
             buildConfigField javaTypes.STRING, "BLOCKCHAIN_NET_URL", asString(getKey("BLOCKCHAIN_NET_URL", "https://sepolia.infura.io/v3/"))
             buildConfigField javaTypes.STRING, "BLOCKCHAIN_EXPLORER_URL", asString(getKey("BLOCKCHAIN_NET_URL", "https://sepolia.etherscan.io/"))
+            
+            // Enable testnet chains for unsafe builds
+            buildConfigField javaTypes.BOOLEAN, "USE_TESTNET_CHAINS", "true"
         }
 
         internal {
@@ -79,10 +91,16 @@ android {
             buildConfigField (javaTypes.STRING, "BLOCKCHAIN_SHORT_NAME", asString("sep"))
             buildConfigField javaTypes.STRING, "BLOCKCHAIN_NET_URL", asString(getKey("BLOCKCHAIN_NET_URL", "https://sepolia.infura.io/v3/"))
             buildConfigField javaTypes.STRING, "BLOCKCHAIN_EXPLORER_URL", asString(getKey("BLOCKCHAIN_NET_URL", "https://sepolia.etherscan.io/"))
+            
+            // Enable testnet chains for internal builds
+            buildConfigField javaTypes.BOOLEAN, "USE_TESTNET_CHAINS", "true"
         }
 
         release {
             buildConfigField javaTypes.STRING, "CLIENT_GATEWAY_URL", asString(getKey("CLIENT_GATEWAY_URL", "https://safe-client.safe.global/"))
+            
+            // Use mainnet chains for release builds
+            buildConfigField javaTypes.BOOLEAN, "USE_TESTNET_CHAINS", "false"
         }
     }
 
@@ -130,6 +148,7 @@ dependencies {
     kapt "com.squareup.moshi:moshi-kotlin-codegen:$versions.moshi"
 
     api "com.squareup.retrofit2:retrofit:$versions.retrofit"
+    api "com.squareup.retrofit2:converter-moshi:$versions.retrofit"
 
     testImplementation "androidx.room:room-testing:$versions.androidx_room"
 }

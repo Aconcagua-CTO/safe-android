@@ -107,6 +107,27 @@ class OwnerEnterNameViewModel
             }
         }
     }
+
+    fun importTangem(address: Solidity.Address, name: String, path: String, cardId: String) {
+        safeLaunch {
+            credentialsRepository.saveTangemOwner(address, name, cardId, path) // Use real card ID
+            settingsHandler.showOwnerBanner = false
+            settingsHandler.showOwnerScreen = false
+            tracker.logTangemKeyImported()
+            tracker.setNumKeysTangem(credentialsRepository.ownerCount(Owner.Type.TANGEM))
+            notificationRepository.registerSafes()
+
+            updateState {
+                OwnerEnterNameState(
+                    if (settingsHandler.usePasscode) {
+                        ViewAction.CloseScreen
+                    } else {
+                        ViewAction.NavigateTo(OwnerEnterNameFragmentDirections.actionOwnerEnterNameFragmentToCreatePasscodeFragment(true, Owner.Type.TANGEM.name, address.asEthereumAddressString()))
+                    }
+                )
+            }
+        }
+    }
 }
 
 data class OwnerEnterNameState(

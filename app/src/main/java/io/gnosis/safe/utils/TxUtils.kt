@@ -211,6 +211,9 @@ fun TransactionInfoViewData.SettingsChange.txActionInfoItems(resources: Resource
                 )
             )
         }
+        null -> {
+            // Handle null case - this shouldn't happen in normal flow
+        }
     }
 
     return result

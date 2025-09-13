@@ -33,10 +33,10 @@ fun Date.elapsedIntervalTo(date: Date): ElapsedInterval {
     val duration = Duration.between(start, end).toKotlinDuration()
 
     return when {
-        duration.inSeconds < 60 -> ElapsedInterval(ChronoUnit.SECONDS, duration.inSeconds.toInt())
-        duration.inMinutes < 60 -> ElapsedInterval(ChronoUnit.MINUTES, duration.inMinutes.toInt())
-        duration.inHours < 24 -> ElapsedInterval(ChronoUnit.HOURS, duration.inHours.toInt())
-        else -> ElapsedInterval(ChronoUnit.DAYS, duration.inDays.toInt())
+        duration.inWholeSeconds < 60 -> ElapsedInterval(ChronoUnit.SECONDS, duration.inWholeSeconds.toInt())
+        duration.inWholeMinutes < 60 -> ElapsedInterval(ChronoUnit.MINUTES, duration.inWholeMinutes.toInt())
+        duration.inWholeHours < 24 -> ElapsedInterval(ChronoUnit.HOURS, duration.inWholeHours.toInt())
+        else -> ElapsedInterval(ChronoUnit.DAYS, duration.inWholeDays.toInt())
     }
 }
 

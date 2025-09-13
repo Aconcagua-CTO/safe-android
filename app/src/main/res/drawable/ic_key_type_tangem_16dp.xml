@@ -1,0 +1,52 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16"
+    android:tint="?attr/colorOnSurface">
+  <!-- Card body -->
+  <path
+      android:pathData="M2,4C2,3.45 2.45,3 3,3L13,3C13.55,3 14,3.45 14,4L14,12C14,12.55 13.55,13 13,13L3,13C2.45,13 2,12.55 2,12L2,4Z"
+      android:fillColor="@android:color/white"
+      android:strokeColor="@color/icon"
+      android:strokeWidth="1"/>
+  
+  <!-- Card chip -->
+  <path
+      android:pathData="M4,5L6,5C6.55,5 7,5.45 7,6L7,8C7,8.55 6.55,9 6,9L4,9C3.45,9 3,8.55 3,8L3,6C3,5.45 3.45,5 4,5Z"
+      android:fillColor="@color/icon"/>
+  
+  <!-- NFC waves -->
+  <path
+      android:pathData="M8,6L10,6"
+      android:strokeColor="@color/icon"
+      android:strokeWidth="1"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M8,7L10,7"
+      android:strokeColor="@color/icon"
+      android:strokeWidth="1"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M8,8L10,8"
+      android:strokeColor="@color/icon"
+      android:strokeWidth="1"
+      android:strokeLineCap="round"/>
+  
+  <!-- Tangem text area -->
+  <path
+      android:pathData="M11,6L13,6"
+      android:strokeColor="@color/icon"
+      android:strokeWidth="0.5"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M11,7L12,7"
+      android:strokeColor="@color/icon"
+      android:strokeWidth="0.5"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M11,8L13,8"
+      android:strokeColor="@color/icon"
+      android:strokeWidth="0.5"
+      android:strokeLineCap="round"/>
+</vector>

@@ -46,13 +46,19 @@ class SettingsHandlerTest {
     }
 
     @Test
-    fun `getAllowScreenshots (initially) should return false`() {
+    fun `getAllowScreenshots (initially) should return default based on build type`() {
         val settingsHandler = SettingsHandler(gatewayApi, preferencesManager, remoteConfig)
 
         runBlocking {
             val result = settingsHandler.screenshotsAllowed
 
-            assertFalse(result)
+            // In DEBUG builds, screenshots should be allowed by default
+            // In RELEASE builds, screenshots should be disabled by default
+            if (io.gnosis.safe.BuildConfig.DEBUG) {
+                assertTrue("DEBUG builds should allow screenshots by default", result)
+            } else {
+                assertFalse("RELEASE builds should disable screenshots by default", result)
+            }
         }
     }
 

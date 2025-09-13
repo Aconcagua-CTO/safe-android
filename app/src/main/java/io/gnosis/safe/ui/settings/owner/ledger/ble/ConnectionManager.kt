@@ -230,6 +230,11 @@ object ConnectionManager {
 
         // Make sure each operation ultimately leads to signalEndOfOperation()
         when (operation) {
+            is Connect -> {
+                // Connect operation is handled separately above
+                Timber.e("Connect operation should not reach this point")
+                signalEndOfOperation()
+            }
             is Disconnect -> with(operation) {
                 Timber.w("Disconnecting from ${device.address}")
                 gatt.close()

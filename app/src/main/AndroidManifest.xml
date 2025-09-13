@@ -31,6 +31,10 @@
         android:name="android.hardware.bluetooth_le"
         android:required="false" />
 
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="false" />
+
     <application
         android:name="io.gnosis.safe.HeimdallApplication"
         android:allowBackup="false"

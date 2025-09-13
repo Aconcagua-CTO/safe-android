@@ -617,6 +617,10 @@ private fun navigateToCreationDetails(view: View, chain: Chain, details: Transac
             creatorLogoUri = details.creatorInfo.addressLogoUri
             creatorLocal = false
         }
+        is AddressInfoData.Default -> {
+            creatorName = view.context.getString(details.creatorInfo.nameResId)
+            creatorLocal = false
+        }
     }
     Navigation.findNavController(view)
         .navigate(

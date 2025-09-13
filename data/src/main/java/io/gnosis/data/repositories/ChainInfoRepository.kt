@@ -1,28 +1,38 @@
 package io.gnosis.data.repositories
 
-import io.gnosis.data.backend.GatewayApi
 import io.gnosis.data.db.daos.ChainDao
 import io.gnosis.data.models.Chain
+import io.gnosis.data.models.ChainConfiguration
 import io.gnosis.data.models.ChainInfo
 import io.gnosis.data.models.Page
 import io.gnosis.data.models.Safe
 
 class ChainInfoRepository(
-    private val chainDao: ChainDao,
-    private val gatewayApi: GatewayApi
+    private val chainDao: ChainDao
 ) {
 
-    suspend fun loadChainInfoPage(pageLink: String): Page<ChainInfo> =
-        gatewayApi.loadChainInfoPage(pageLink)
+    suspend fun getSupportedChains(): List<Chain> = ChainConfiguration.getSupportedChains()
 
-    suspend fun getChainInfo(): Page<ChainInfo> =
-        gatewayApi.loadChainInfo()
+    suspend fun getChainInfo(): Page<Chain> {
+        val chains = ChainConfiguration.getSupportedChains()
+        return Page(
+            count = chains.size,
+            next = null,
+            previous = null,
+            results = chains
+        )
+    }
+
+    suspend fun loadChainInfoPage(pageLink: String?): Page<Chain> = getChainInfo()
 
     suspend fun updateChainInfo(chains: List<ChainInfo>, safes: List<Safe>) {
+        val supportedChains = ChainConfiguration.getSupportedChains()
+        val supportedChainIds = supportedChains.map { it.chainId }.toSet()
+        
         safes.map { it.chainId }.toSet().forEach { chainId ->
-            val chainInfo = chains.find { it.chainId == chainId }
-            chainInfo?.let {
-                save(it.toChain())
+            if (supportedChainIds.contains(chainId)) {
+                val chain = supportedChains.find { it.chainId == chainId }
+                chain?.let { save(it) }
             }
         }
     }
@@ -33,5 +43,15 @@ class ChainInfoRepository(
     }
 
     suspend fun getChains(): List<Chain> = chainDao.loadAll()
+    
+    /**
+     * Initialize the database with all supported chains for the current build variant
+     */
+    suspend fun initializeSupportedChains() {
+        val supportedChains = ChainConfiguration.getSupportedChains()
+        supportedChains.forEach { chain ->
+            save(chain)
+        }
+    }
 }
 

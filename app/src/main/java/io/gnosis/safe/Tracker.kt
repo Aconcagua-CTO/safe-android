@@ -37,6 +37,10 @@ class Tracker internal constructor(
         firebaseAnalytics.setUserProperty(Param.NUM_KEYS_KEYSTONE, numKeysKeystone.toString())
     }
 
+    fun setNumKeysTangem(numKeysTangem: Int) {
+        firebaseAnalytics.setUserProperty(Param.NUM_KEYS_TANGEM, numKeysTangem.toString())
+    }
+
     fun setPushInfo(enabled: Boolean) {
         firebaseAnalytics.setUserProperty(Param.PUSH_INFO, if (enabled) ParamValues.PUSH_ENABLED else ParamValues.PUSH_DISABLED)
     }
@@ -105,6 +109,10 @@ class Tracker internal constructor(
 
     fun logKeystoneKeyImported() {
         logEvent(Event.KEY_IMPORTED_KEYSTONE, null)
+    }
+
+    fun logTangemKeyImported() {
+        logEvent(Event.KEY_IMPORTED_TANGEM, null)
     }
 
     fun logKeyDeleted() {
@@ -228,6 +236,7 @@ class Tracker internal constructor(
         val KEY_IMPORTED = "user_key_imported"
         val KEY_IMPORTED_LEDGER = "user_ledger_nano_x_key_imported"
         val KEY_IMPORTED_KEYSTONE = "user_keystone_key_imported"
+        val KEY_IMPORTED_TANGEM = "user_tangem_key_imported"
         val KEY_DELETED = "user_key_deleted"
         val TRANSACTION_CONFIRMED = "user_transaction_confirmed"
         val TRANSACTION_CONFIRMED_LEDGER = "user_transaction_confirmed_ledger_nano_x"
@@ -260,6 +269,7 @@ class Tracker internal constructor(
         val NUM_KEYS_IMPORTED = "num_keys_imported"
         val NUM_KEYS_LEDGER = "num_keys_ledger_nano_x"
         val NUM_KEYS_KEYSTONE = "num_keys_keystone"
+        val NUM_KEYS_TANGEM = "num_keys_tangem"
         val KEY_IMPORT_TYPE = "import_type"
         val PASSCODE_IS_SET = "passcode_is_set"
         val TX_EXEC_FIELDS = "fields"
@@ -314,6 +324,8 @@ enum class ScreenId(val value: String) {
     OWNER_GENERATE_INFO("screen_owner_generate_info"),
     OWNER_LEDGER_INFO("screen_owner_ledger_nano_x_info"),
     OWNER_KEYSTONE_INFO("screen_owner_keystone_info"),
+    OWNER_TANGEM_INFO("screen_owner_tangem_info"),
+    OWNER_TANGEM_SIGN("screen_owner_tangem_sign"),
     OWNER_ENTER_SEED("screen_owner_enter_seed"),
     OWNER_ENTER_NAME("screen_owner_enter_name"),
     OWNER_EDIT_NAME("screen_owner_edit_name"),
@@ -357,6 +369,8 @@ enum class ScreenId(val value: String) {
     SCANNER_KEYSTONE("screen_keystone_scan"),
     OWNER_SELECT_ACCOUNT("screen_owner_select_account"),
     OWNER_SELECT_LEDGER_ACCOUNT("screen_owner_ledger_account"),
+    OWNER_TANGEM_SELECTION("screen_owner_tangem_selection"),
+    TANGEM_SIGN("screen_tangem_sign"),
     PASSCODE_CREATE("screen_passcode_create"),
     PASSCODE_CREATE_REPEAT("screen_passcode_create_repeat"),
     PASSCODE_CHANGE("screen_passcode_change"),

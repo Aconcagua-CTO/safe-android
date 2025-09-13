@@ -18,6 +18,8 @@ import dagger.Provides
 import io.gnosis.data.BuildConfig.CLIENT_GATEWAY_URL
 import io.gnosis.data.adapters.dataMoshi
 import io.gnosis.data.backend.GatewayApi
+import io.gnosis.data.backend.DynamicGatewayApi
+import io.gnosis.data.backend.DynamicGatewayApiImpl
 import io.gnosis.data.db.daos.OwnerDao
 import io.gnosis.data.repositories.*
 import io.gnosis.data.security.BiometricPasscodeManager
@@ -36,6 +38,7 @@ import io.gnosis.safe.ui.settings.app.SettingsHandler
 import io.gnosis.safe.ui.settings.chain.paging.ChainPagingProvider
 import io.gnosis.safe.ui.settings.owner.ledger.LedgerController
 import io.gnosis.safe.ui.settings.owner.ledger.LedgerOwnerPagingProvider
+import io.gnosis.safe.ui.settings.owner.tangem.TangemController
 import io.gnosis.safe.ui.terms.TermsChecker
 import io.gnosis.safe.ui.transactions.paging.TransactionPagingProvider
 import io.gnosis.safe.utils.BalanceFormatter
@@ -131,6 +134,11 @@ class ApplicationModule(private val application: Application) {
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
             .create(GatewayApi::class.java)
+
+    @Provides
+    @Singleton
+    fun providesDynamicGatewayApi(moshi: Moshi, client: OkHttpClient): DynamicGatewayApi =
+        DynamicGatewayApiImpl(moshi, client)
 
     @Provides
     @Singleton
@@ -363,8 +371,13 @@ class ApplicationModule(private val application: Application) {
 
     @Provides
     @Singleton
+    fun providesTangemController(@ApplicationContext context: Context) = TangemController(context)
+
+    @Provides
+    @Singleton
     fun providesIntercomPushClient(): IntercomPushClient = IntercomPushClient()
 
     @Provides
     fun providesKeystoneSDK(): KeystoneSDK = KeystoneSDK()
+
 }

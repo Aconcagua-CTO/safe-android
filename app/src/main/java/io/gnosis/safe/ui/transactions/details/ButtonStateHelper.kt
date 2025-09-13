@@ -30,7 +30,8 @@ class ButtonStateHelper(
 
         !isRejection && awaitingConfirmations && canSign -> true
 
-        awaitingExecution && canExecute && hasOwnerKey -> true
+        // FIXED: Match web frontend - any key can execute if threshold is met (remove hasOwnerKey requirement)
+        awaitingExecution && canExecute -> true
 
         else -> false
     }
