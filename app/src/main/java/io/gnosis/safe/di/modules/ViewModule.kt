@@ -17,6 +17,8 @@ import io.gnosis.safe.ui.dialogs.EnsInputViewModel
 import io.gnosis.safe.ui.dialogs.UnstoppableInputViewModel
 import io.gnosis.safe.ui.safe.add.AddSafeNameViewModel
 import io.gnosis.safe.ui.safe.add.AddSafeViewModel
+import io.gnosis.safe.multichain.ui.selection.MultichainSafeSelectionAdapter
+import io.gnosis.safe.multichain.ui.selection.MultichainSafeSelectionViewModel
 import io.gnosis.safe.ui.safe.selection.SafeSelectionAdapter
 import io.gnosis.safe.ui.safe.selection.SafeSelectionViewModel
 import io.gnosis.safe.ui.safe.send_funds.AssetSelectionViewModel
@@ -87,6 +89,11 @@ class ViewModule(
     @ForView
     fun providesSafeSelectionAdapter(safeSelectionViewModel: SafeSelectionViewModel) =
         SafeSelectionAdapter(WeakReference(safeSelectionViewModel))
+
+    @Provides
+    @ForView
+    fun providesMultichainSafeSelectionAdapter(multichainSafeSelectionViewModel: MultichainSafeSelectionViewModel) =
+        MultichainSafeSelectionAdapter(WeakReference(multichainSafeSelectionViewModel))
 
     @Provides
     @ForView

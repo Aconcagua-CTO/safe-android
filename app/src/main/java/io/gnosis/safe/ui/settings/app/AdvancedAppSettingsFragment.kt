@@ -5,7 +5,9 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
+import kotlinx.coroutines.launch
 import androidx.navigation.fragment.findNavController
 import io.gnosis.data.BuildConfig.CLIENT_GATEWAY_URL
 import io.gnosis.data.repositories.EnsRepository
@@ -14,6 +16,8 @@ import io.gnosis.safe.R
 import io.gnosis.safe.ScreenId
 import io.gnosis.safe.databinding.FragmentSettingsAppAdvancedBinding
 import io.gnosis.safe.di.components.ViewComponent
+import io.gnosis.safe.multichain.MultichainFeatureFlag
+import io.gnosis.safe.multichain.migration.MultichainMigrationHelper
 import io.gnosis.safe.ui.base.fragment.BaseViewBindingFragment
 import io.gnosis.safe.utils.appendLink
 import pm.gnosis.svalinn.common.utils.visible
@@ -32,6 +36,12 @@ class AdvancedAppSettingsFragment : BaseViewBindingFragment<FragmentSettingsAppA
 
     @Inject
     lateinit var settingsHandler: SettingsHandler
+
+    @Inject
+    lateinit var multichainFeatureFlag: MultichainFeatureFlag
+
+    @Inject
+    lateinit var multichainMigrationHelper: MultichainMigrationHelper
 
     override fun inflateBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentSettingsAppAdvancedBinding =
         FragmentSettingsAppAdvancedBinding.inflate(inflater, container, false)
@@ -77,6 +87,23 @@ class AdvancedAppSettingsFragment : BaseViewBindingFragment<FragmentSettingsAppA
             trackingPermission.settingSwitch.setOnClickListener {
                 settingsHandler.trackingAllowed = trackingPermission.settingSwitch.isChecked
                 settingsHandler.allowTracking(requireContext(), trackingPermission.settingSwitch.isChecked)
+            }
+
+            // Multichain mode toggle
+            multichainMode.settingSwitch.isChecked = multichainFeatureFlag.isMultichainEnabled()
+            multichainMode.settingSwitch.setOnClickListener {
+                val enabled = multichainMode.settingSwitch.isChecked
+                android.util.Log.d("AdvancedAppSettings", "User toggled multichain mode to: $enabled")
+                
+                // Use migration helper to handle toggle with proper migration
+                lifecycleScope.launch {
+                    try {
+                        multichainMigrationHelper.handleFeatureFlagToggle(enabled)
+                        android.util.Log.d("AdvancedAppSettings", "Multichain toggle completed successfully")
+                    } catch (e: Exception) {
+                        android.util.Log.e("AdvancedAppSettings", "Error handling multichain toggle: ${e.message}", e)
+                    }
+                }
             }
 
         }

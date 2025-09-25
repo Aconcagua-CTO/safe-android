@@ -35,7 +35,8 @@ import javax.inject.Singleton
         InterceptorsModule::class,
         ViewModelFactoryModule::class,
         DatabaseModule::class,
-        RepositoryModule::class
+        RepositoryModule::class,
+        io.gnosis.safe.multichain.di.MultichainModule::class
     ]
 )
 interface ApplicationComponent {
@@ -86,4 +87,17 @@ interface ApplicationComponent {
     fun inject(fragment: BaseDialogFragment)
 
     fun inject(service: HeimdallFirebaseService)
+
+    // Multichain services
+    fun multichainFeatureFlag(): io.gnosis.safe.multichain.MultichainFeatureFlag
+
+    fun multichainNavigationHelper(): io.gnosis.safe.multichain.navigation.MultichainNavigationHelper
+    
+    fun multichainSafeRepository(): io.gnosis.safe.multichain.repositories.MultichainSafeRepository
+    
+    fun multichainBalanceService(): io.gnosis.safe.multichain.services.MultichainBalanceService
+    
+    fun multichainMigrationHelper(): io.gnosis.safe.multichain.migration.MultichainMigrationHelper
+    
+    fun preferencesManager(): pm.gnosis.svalinn.common.PreferencesManager
 }

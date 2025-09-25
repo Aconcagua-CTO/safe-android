@@ -45,6 +45,21 @@
     </dialog>
 
     <dialog
+        android:id="@+id/multichainSafeSelectionDialog"
+        android:name="io.gnosis.safe.multichain.ui.selection.MultichainSafeSelectionDialog"
+        android:label="MultichainSafeSelectionDialog"
+        tools:layout="@layout/dialog_multichain_safe_selection">
+
+        <action
+            android:id="@+id/action_multichainSafeSelectionDialog_to_add_safe"
+            app:destination="@id/selectChainFragment"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/selectChainFragment"
+            app:popUpToInclusive="true" />
+
+    </dialog>
+
+    <dialog
         android:id="@+id/shareSafeDialog"
         android:name="io.gnosis.safe.ui.safe.share.ShareSafeDialog"
         android:label="ShareSafeDialog"

@@ -335,6 +335,7 @@ enum class ScreenId(val value: String) {
     OWNER_EXPORT_KEY("screen_owner_export_key"),
     SAFE_RECEIVE("screen_safe_receive"),
     SAFE_SELECT("screen_safe_switch"),
+    MULTICHAIN_SAFE_SELECT("screen_multichain_safe_switch"),
     SAFE_ADD_ADDRESS("screen_safe_add_address"),
     SAFE_ADD_NAME("screen_safe_add_name"),
     SAFE_ADD_OWNER("screen_safe_add_owner"),

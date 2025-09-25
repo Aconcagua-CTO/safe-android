@@ -227,6 +227,10 @@
     <string name="settings_chain_prefix_copy">Copy addresses with chain prefix</string>
     <string name="settings_chain_prefix_copy_hint">When you copy any address, the app will prepend the chain according to standard EIP-3770</string>
 
+    <string name="multichain_experimental">EXPERIMENTAL</string>
+    <string name="enable_multichain_mode">Enable multichain mode</string>
+    <string name="enable_multichain_mode_description">When enabled, Safe vaults will be grouped by address across multiple chains. This is an experimental feature and may not work as expected.</string>
+
     <string name="settings_passcode_use_passcode">Use passcode</string>
     <string name="settings_passcode_change_passcode">Change passcode</string>
     <string name="settings_passcode_is_needed_to_sign">The passcode is needed to open the app and sign transactions.</string>

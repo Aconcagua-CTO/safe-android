@@ -219,6 +219,8 @@ interface ViewComponent {
 
     fun inject(dialog: SafeSelectionDialog)
 
+    fun inject(dialog: io.gnosis.safe.multichain.ui.selection.MultichainSafeSelectionDialog)
+
     fun inject(dialog: TermsBottomSheetDialog)
 
     fun inject(dialog: ShareSafeDialog)

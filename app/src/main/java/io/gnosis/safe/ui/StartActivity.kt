@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.core.view.marginLeft
 import androidx.core.view.marginRight
 import androidx.lifecycle.Lifecycle
@@ -25,6 +26,10 @@ import io.gnosis.safe.HeimdallIntercom
 import io.gnosis.safe.R
 import io.gnosis.safe.databinding.ActivityStartBinding
 import io.gnosis.safe.databinding.ToolbarSafeOverviewBinding
+import io.gnosis.safe.multichain.migration.MultichainMigrationHelper
+import io.gnosis.safe.multichain.navigation.MultichainNavigationHelper
+import io.gnosis.safe.multichain.repositories.MultichainSafeRepository
+import io.gnosis.safe.multichain.services.MultichainBalanceService
 import io.gnosis.safe.notifications.NotificationRepository
 import io.gnosis.safe.ui.base.SafeOverviewNavigationHandler
 import io.gnosis.safe.ui.base.activity.BaseActivity
@@ -40,6 +45,7 @@ import pm.gnosis.crypto.utils.asEthereumAddressChecksumString
 import pm.gnosis.model.Solidity
 import pm.gnosis.svalinn.common.utils.visible
 import pm.gnosis.utils.asEthereumAddress
+import pm.gnosis.utils.asEthereumAddressString
 import java.math.BigInteger
 import javax.inject.Inject
 
@@ -54,6 +60,18 @@ class StartActivity : BaseActivity(), SafeOverviewNavigationHandler, AppStateLis
 
     @Inject
     lateinit var notificationRepository: NotificationRepository
+
+    @Inject
+    lateinit var multichainNavigationHelper: MultichainNavigationHelper
+
+    @Inject
+    lateinit var multichainSafeRepository: MultichainSafeRepository
+
+    @Inject
+    lateinit var multichainBalanceService: MultichainBalanceService
+
+    @Inject
+    lateinit var multichainMigrationHelper: MultichainMigrationHelper
 
     private lateinit var navController: NavController
 
@@ -77,8 +95,34 @@ class StartActivity : BaseActivity(), SafeOverviewNavigationHandler, AppStateLis
 
         viewComponent().inject(this)
 
+        // Debug: Check Safe status on startup and trigger migration if needed
+        lifecycleScope.launch {
+            debugSafeStatus()
+            
+            // Trigger automatic migration if multichain mode is enabled
+            if (multichainNavigationHelper.shouldShowMultichainUI()) {
+                android.util.Log.d("StartActivity", "onCreate() - multichain mode is ON, triggering automatic migration")
+                try {
+                    multichainMigrationHelper.synchronizeActiveSafe()
+                    android.util.Log.d("StartActivity", "onCreate() - automatic migration completed")
+                    
+                    // Debug status after migration
+                    debugSafeStatus()
+                } catch (e: Exception) {
+                    android.util.Log.e("StartActivity", "onCreate() - error during automatic migration: ${e.message}", e)
+                }
+            } else {
+                android.util.Log.d("StartActivity", "onCreate() - multichain mode is OFF, no migration needed")
+            }
+        }
+
         toolbarBinding.safeSelection.setOnClickListener {
-            navController.navigate(R.id.safeSelectionDialog)
+            android.util.Log.d("StartActivity", "Safe selection button clicked!")
+            try {
+                multichainNavigationHelper.navigateToSafeSelection(navController)
+            } catch (e: Exception) {
+                android.util.Log.e("StartActivity", "Error in safe selection navigation: ${e.message}", e)
+            }
         }
         setupNav()
 
@@ -358,22 +402,140 @@ class StartActivity : BaseActivity(), SafeOverviewNavigationHandler, AppStateLis
 
         with(binding) {
             toolbarShadow.visible(false)
-            chainRibbon.visible(true)
-            safe.chain.let {
-                chainRibbon.text = it.name
-                chainRibbon.setTextColor(
-                    it.textColor.toColor(
-                        applicationContext,
-                        R.color.white
-                    )
-                )
-                chainRibbon.setBackgroundColor(
-                    it.backgroundColor.toColor(
-                        applicationContext,
-                        R.color.primary
-                    )
-                )
+            
+            // Show multichain information if multichain mode is enabled
+            if (multichainNavigationHelper.shouldShowMultichainUI()) {
+                updateToolbarForMultichainSafe(safe)
+            } else {
+                updateToolbarForSingleChainSafe(safe)
             }
+        }
+
+        // Test multichain balance aggregation if feature is enabled
+        testMultichainBalanceAggregation(safe)
+    }
+
+    private fun testMultichainBalanceAggregation(safe: Safe) {
+        if (multichainNavigationHelper.shouldUseMultichainAssets()) {
+            lifecycleScope.launch {
+                try {
+                    android.util.Log.d("StartActivity", "testMultichainBalanceAggregation() - testing balance aggregation for ${safe.localName}")
+                    
+                    val multichainSafe = multichainSafeRepository.getMultichainSafeByAddress(safe.address)
+                    if (multichainSafe != null) {
+                        android.util.Log.d("StartActivity", "testMultichainBalanceAggregation() - found multichain safe: ${multichainSafe.localName} on ${multichainSafe.chainCount} chains")
+                        
+                        val balanceData = multichainBalanceService.loadAggregatedBalances(multichainSafe, "USD")
+                        
+                        android.util.Log.d("StartActivity", "testMultichainBalanceAggregation() - balance aggregation completed!")
+                        android.util.Log.d("StartActivity", "testMultichainBalanceAggregation() - total fiat value: ${balanceData.totalFiatValue} USD")
+                        android.util.Log.d("StartActivity", "testMultichainBalanceAggregation() - successful chains: ${balanceData.successfulChains.size}")
+                        android.util.Log.d("StartActivity", "testMultichainBalanceAggregation() - failed chains: ${balanceData.failedChains.size}")
+                        
+                        if (balanceData.hasErrors) {
+                            balanceData.failedChains.forEach { chain ->
+                                android.util.Log.w("StartActivity", "testMultichainBalanceAggregation() - failed to load ${chain.name}")
+                            }
+                        }
+                    } else {
+                        android.util.Log.d("StartActivity", "testMultichainBalanceAggregation() - no multichain safe found for address")
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("StartActivity", "testMultichainBalanceAggregation() - error: ${e.message}", e)
+                }
+            }
+        }
+    }
+
+    private fun updateToolbarForMultichainSafe(safe: Safe) {
+        android.util.Log.d("StartActivity", "updateToolbarForMultichainSafe() - updating toolbar for multichain mode")
+        
+        lifecycleScope.launch {
+            try {
+                val multichainSafe = multichainSafeRepository.getMultichainSafeByAddress(safe.address)
+                if (multichainSafe != null) {
+                    android.util.Log.d("StartActivity", "updateToolbarForMultichainSafe() - found multichain safe: ${multichainSafe.localName} on ${multichainSafe.chainCount} chains")
+                    
+                    binding.chainRibbon.visible(true)
+                    binding.chainRibbon.text = "Multichain: ${multichainSafe.chainNames}"
+                    binding.chainRibbon.setTextColor(
+                        ContextCompat.getColor(applicationContext, R.color.white)
+                    )
+                    binding.chainRibbon.setBackgroundColor(
+                        ContextCompat.getColor(applicationContext, R.color.primary)
+                    )
+                } else {
+                    android.util.Log.d("StartActivity", "updateToolbarForMultichainSafe() - no multichain safe found, falling back to single-chain")
+                    updateToolbarForSingleChainSafe(safe)
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("StartActivity", "updateToolbarForMultichainSafe() - error: ${e.message}", e)
+                updateToolbarForSingleChainSafe(safe)
+            }
+        }
+    }
+
+    private fun updateToolbarForSingleChainSafe(safe: Safe) {
+        android.util.Log.d("StartActivity", "updateToolbarForSingleChainSafe() - updating toolbar for single-chain mode")
+        
+        binding.chainRibbon.visible(true)
+        safe.chain.let {
+            binding.chainRibbon.text = it.name
+            binding.chainRibbon.setTextColor(
+                it.textColor.toColor(
+                    applicationContext,
+                    R.color.white
+                )
+            )
+            binding.chainRibbon.setBackgroundColor(
+                it.backgroundColor.toColor(
+                    applicationContext,
+                    R.color.primary
+                )
+            )
+        }
+    }
+
+    private suspend fun debugSafeStatus() {
+        try {
+            android.util.Log.d("StartActivity", "debugSafeStatus() - checking Safe status on startup")
+            
+            // Check single-chain active Safe
+            val activeSafe = safeRepository.getActiveSafe()
+            android.util.Log.d("StartActivity", "debugSafeStatus() - active single-chain safe: ${activeSafe?.localName ?: "none"}")
+            activeSafe?.let { safe ->
+                android.util.Log.d("StartActivity", "debugSafeStatus() - single-chain safe address: ${safe.address.asEthereumAddressString()}")
+                android.util.Log.d("StartActivity", "debugSafeStatus() - single-chain safe chain: ${safe.chain.name}")
+            }
+            
+            // Check multichain active Safe
+            val activeMultichainSafe = multichainSafeRepository.getActiveMultichainSafe()
+            android.util.Log.d("StartActivity", "debugSafeStatus() - active multichain safe: ${activeMultichainSafe?.localName ?: "none"}")
+            activeMultichainSafe?.let { safe ->
+                android.util.Log.d("StartActivity", "debugSafeStatus() - multichain safe address: ${safe.address.asEthereumAddressString()}")
+                android.util.Log.d("StartActivity", "debugSafeStatus() - multichain safe chains: ${safe.chainNames}")
+            }
+            
+            // Check all available Safes
+            val allSafes = safeRepository.getSafes()
+            android.util.Log.d("StartActivity", "debugSafeStatus() - total safes in database: ${allSafes.size}")
+            allSafes.forEach { safe ->
+                android.util.Log.d("StartActivity", "debugSafeStatus() - safe: ${safe.localName} on ${safe.chain.name} (${safe.address.asEthereumAddressString()})")
+            }
+            
+            // Check multichain Safes
+            val multichainSafes = multichainSafeRepository.getMultichainSafes()
+            android.util.Log.d("StartActivity", "debugSafeStatus() - total multichain safes: ${multichainSafes.size}")
+            multichainSafes.forEach { safe ->
+                android.util.Log.d("StartActivity", "debugSafeStatus() - multichain safe: ${safe.localName} on ${safe.chainCount} chains (${safe.address.asEthereumAddressString()})")
+            }
+            
+            // Check migration status
+            val migrationStatus = multichainMigrationHelper.getMigrationStatus()
+            android.util.Log.d("StartActivity", "debugSafeStatus() - migration synchronized: ${migrationStatus.safesAreSynchronized}")
+            
+        } catch (e: Exception) {
+            android.util.Log.e("StartActivity", "debugSafeStatus() - error: ${e.message}", e)
         }
     }
 

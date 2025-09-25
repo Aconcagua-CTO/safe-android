@@ -261,6 +261,14 @@ class SettingsHandler @Inject constructor(
             }
         }
 
+    var isMultichainModeEnabled: Boolean
+        get() = preferencesManager.prefs.getBoolean(KEY_MULTICHAIN_MODE_ENABLED, true)
+        set(value) {
+            preferencesManager.prefs.edit {
+                putBoolean(KEY_MULTICHAIN_MODE_ENABLED, value)
+            }
+        }
+
     companion object {
         internal const val KEY_CURRENT_VERSION = "prefs.integer.current_version"
         internal const val KEY_NIGHT_MODE = "prefs.string.appearance.night_mode"
@@ -282,6 +290,7 @@ class SettingsHandler @Inject constructor(
         internal const val KEY_CHAIN_PREFIX_QR = "prefs.boolean.chain_prefix_qr"
         internal const val KEY_CHAIN_PREFIX_PREPEND = "prefs.boolean.chain_prefix_prepend"
         internal const val KEY_CHAIN_PREFIX_COPY = "prefs.boolean.chain_prefix_copy"
+        internal const val KEY_MULTICHAIN_MODE_ENABLED = "prefs.boolean.multichain_mode_enabled"
 
         internal const val KEY_UPDATE_SHOWN_FOR_VERSION = "prefs.integer.update_shown_for_version"
         internal const val KEY_FIREBASE_NEWEST_VERSION = "newestVersion"
